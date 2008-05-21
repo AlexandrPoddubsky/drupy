@@ -2,44 +2,11 @@
 #
 
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file form.py (ported from Drupal's form.inc)
-#  API for handling file uploads and server file management.
-# @author Brendon Crawford, Morphir
-# @copyright 2008 Brendon Crawford, Morphir
-# @contact message144 at users dot sourceforge dot net,
-#  morphir at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
-
-
-
-
-static('static_drupalretrieveform_forms')
-static('static_formseterror_form')
-static('static_elementinfo_cache')
-static('static_formoptionsflatten_return')
-
+#static('static_drupalretrieveform_forms')
+#static('static_formseterror_form')
+#static('static_elementinfo_cache')
+#static('static_formoptionsflatten_return')
+#static('DrupyHelper.Reference.check(static_batchget_batch)')
 
 # @defgroup forms Form builder functions
 # @{
@@ -104,7 +71,7 @@ static('static_formoptionsflatten_return')
 #   The rendered form.
 #
 def drupal_get_form(form_id):
-  form_state = {'storage' : None, 'submitted' : False}
+  form_state = {'storage': None, 'submitted': False}
   args = func_get_args()
   cacheable = False
   if (isset(_SESSION, 'batch_form_state')):
@@ -164,7 +131,6 @@ def drupal_get_form(form_id):
   # workflow is NOT complete. We need to construct a fresh copy of
   # the form, passing in the latest form_state in addition to any
   # other variables passed into drupal_get_form().
-
   if (not empty(form_state['rebuild']) or not empty(form_state['storage'])):
     form = drupal_rebuild_form(form_id, form_state, args)
   # If we haven't redirected to a new location by now, we want to
@@ -313,6 +279,7 @@ def drupal_execute(form_id, form_state):
   drupal_process_form(form_id, form, form_state)
 
 
+
 #
 # Retrieves the structured array that defines a given form.
 #
@@ -449,7 +416,6 @@ def drupal_process_form(form_id, form, form_state):
 
 
 
-
 #
 # Prepares a structured form array by adding required elements,
 # executing any hook_form_alter functions, and optionally inserting
@@ -472,10 +438,10 @@ def drupal_prepare_form(form_id, form, form_state):
   form.val['#programmed'] = isset(form, '#post')
   if (isset(form.val, '#build_id')):
     form.val['form_build_id'] = {
-      '#type' : 'hidden',
-      '#value' : form.val['#build_id'],
-      '#id' : form.val['#build_id'],
-      '#name' : 'form_build_id',
+      '#type': 'hidden',
+      '#value': form.val['#build_id'],
+      '#id': form.val['#build_id'],
+      '#name': 'form_build_id',
     }
   # Add a token, based on either #token or form_id, to any form displayed to
   # authenticated users. This ensures that any submitted form was actually
@@ -485,19 +451,19 @@ def drupal_prepare_form(form_id, form, form_state):
     if (form.val['#token'] == False or user.uid == 0 or form.val['#programmed']):
       del(form.val['#token'])
     else:
-      form.val['form_token'] = {'#type' : 'token', '#default_value' : drupal_get_token(form['#token'])}
+      form.val['form_token'] = {'#type': 'token', '#default_value': drupal_get_token(form['#token'])}
   elif (isset(user, 'uid') and user.uid and not form.val['#programmed']):
     form.val['#token'] = form_id
     form.val['form_token'] = {
-      '#id' : form_clean_id('edit-' + form_id + '-form-token'),
-      '#type' : 'token',
-      '#default_value' : drupal_get_token(form.val['#token']),
+      '#id': form_clean_id('edit-' + form_id + '-form-token'),
+      '#type': 'token',
+      '#default_value': drupal_get_token(form.val['#token']),
     }
   if (not empty(form_id)):
     form.val['form_id'] = {
-      '#type' : 'hidden',
-      '#value' : form_id,
-      '#id' : form_clean_id("edit-form_id"),
+      '#type': 'hidden',
+      '#value': form_id,
+      '#id': form_clean_id("edit-form_id"),
     }
   if (not isset(form.val, '#id')):
     form.val['#id'] = form_clean_id(form_id)
@@ -562,6 +528,7 @@ def drupal_validate_form(form_id, form, form_state):
   validated_forms[form_id] = True
 
 
+
 #
 # Renders a structured form array into themed HTML.
 #
@@ -584,6 +551,9 @@ def drupal_render_form(form_id, form):
       form.val['#theme'] = form_id
   output = drupal_render(form)
   return output
+
+
+
 #
 # Redirect the user to a URL after a form has been processed.
 #
@@ -606,6 +576,9 @@ def drupal_redirect_form(form, redirect = None):
       else:
         drupal_goto(goto)
     drupal_goto(_GET['q'])
+
+
+
 #
 # Performs validation on form elements. First ensures required fields are
 # completed, #maxlength is not exceeded, and selected options were in the
@@ -644,9 +617,9 @@ def _form_validate(elements, form_state, form_id = None):
       # checkboxes, can return a valid value of '0'. Instead, check the
       # length if it's a string, and the item count if it's an array.
       if (elements['#required'] and (not count(elements['#value']) or (is_string(elements['#value']) and strlen(trim(elements['#value'])) == 0))):
-        form_error(elements, t('not name field is required.', {'not name' : elements['#title']}))
+        form_error(elements, t('not name field is required.', {'not name': elements['#title']}))
       if (isset(elements, '#maxlength') and drupal_strlen(elements['#value']) > elements['#maxlength']):
-        form_error(elements, t('not name cannot be longer than %max characters but is currently %length characters long.', {'not name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title']), '%max' : elements['#maxlength'], '%length' : drupal_strlen(elements['#value'])}))
+        form_error(elements, t('not name cannot be longer than %max characters but is currently %length characters long.', {'not name': (elements['#parents'][0] if empty(elements['#title']) else elements['#title']), '%max': elements['#maxlength'], '%length': drupal_strlen(elements['#value'])}))
       if (isset(elements, '#options') and isset(elements, '#value')):
         if (elements['#type'] == 'select'):
           options = form_options_flatten(elements['#options'])
@@ -657,7 +630,7 @@ def _form_validate(elements, form_state, form_id = None):
           for v in value:
             if (not isset(options, v)):
               form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
-              watchdog('form', 'Illegal choice %choice in not name element.', {'%choice' : v, 'not name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
+              watchdog('form', 'Illegal choice %choice in not name element.', {'%choice': v, 'not name': (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
         elif (not isset(options, elements['#value'])):
           form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
           watchdog('form', 'Illegal choice %choice in %name element.', {'%choice' : elements['#value'], '%name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
@@ -674,6 +647,7 @@ def _form_validate(elements, form_state, form_id = None):
         if (function_exists(function)):
           function(elements, form_state, complete_form)
     elements['#validated'] = True
+
 
 
 #
@@ -708,11 +682,12 @@ def form_execute_handlers(type, form, form_state):
         # Some previous _submit handler has set a batch. We store the call
         # in a special 'control' batch set, for execution at the correct
         # time during the batch processing workflow.
-        batch['sets'].append( {'form_submit' : function} )
+        batch['sets'].append( {'form_submit': function} )
       else:
         function(form.val, form_state.val)
       _return = True
   return _return
+
 
 
 #
@@ -749,6 +724,8 @@ def form_get_errors():
   if (not empty(form)):
     return form
 
+
+
 #
 # Return the error message filed against the form with the specified name.
 #
@@ -760,6 +737,7 @@ def form_get_error(element):
   key = implode('][', element['#parents'])
   if (isset(form, key)):
     return form[key]
+
 
 
 #
@@ -941,7 +919,6 @@ def _form_builder_handle_input_element(form_id, form, form_state, complete_form)
 
 
 
-
 #
 # Helper function to handle the sometimes-convoluted logic of button
 # click detection.
@@ -969,6 +946,7 @@ def _form_button_was_clicked(form):
   return False
 
 
+
 #
 # In IE, if only one submit button is present, AND the enter key is
 # used to submit the form, no form value is sent for it and our normal
@@ -994,7 +972,6 @@ def _form_builder_ie_cleanup(form, form_state):
       form_state.val['validate_handlers'] = (None if empty(button['#validate']) else button['#validate'])
       form_state.val['values'][button['#name']] = button['#value']
       form_state.val['clicked_button'] = button
-
 
 
 
@@ -1076,6 +1053,8 @@ def form_type_checkboxes_value(form, edit = False):
   elif (edit == None):
     return {}
 
+
+
 #
 # Helper function to determine the value for a password_confirm form
 # element.
@@ -1091,8 +1070,8 @@ def form_type_checkboxes_value(form, edit = False):
 #
 def form_type_password_confirm_value(form, edit = False):
   if (edit == False):
-    form += {'#default_value' : {}}
-    return (form['#default_value'] + {'pass1' : '', 'pass2' : ''})
+    form += {'#default_value': {}}
+    return (form['#default_value'] + {'pass1': '', 'pass2': ''})
 
 
 
@@ -1155,7 +1134,6 @@ def form_type_token_value(form, edit = False):
 
 
 
-
 #
 # Change submitted form values during the form processing cycle.
 #
@@ -1185,7 +1163,6 @@ def form_set_value(form_item, value, form_state):
 
 
 
-
 #
 # Helper function for form_set_value().
 #
@@ -1205,18 +1182,17 @@ def _form_set_value(form_values, form_item, parents, value):
 
 
 
-
 #
 # Retrieve the default properties for the defined element type.
 #
 def _element_info(type, refresh = None):
   global static_elementinfo_cache
   basic_defaults = {
-    '#description' : None,
-    '#attributes' : dict(),
-    '#required' : False,
-    '#tree' : False,
-    '#parents' : dict()
+    '#description': None,
+    '#attributes': dict(),
+    '#required': False,
+    '#tree': False,
+    '#parents': dict()
   }
   if (static_elementinfo_cache == None or refresh):
     static_elementinfo_cache = dict()
@@ -1292,8 +1268,9 @@ def form_select_options(element, choices = None):
       else:
         selected = ''
       options += '<option value="' +  check_plain(key)  + '"' + selected + '>' + check_plain(choice) + '</option>'
-
   return options
+
+
 
 #
 # Traverses a select element's #option array looking for any values
@@ -1329,7 +1306,7 @@ def form_select_options(element, choices = None):
 #
 def form_get_options(element, key):
   keys = dict()
-  for element['#options'] in {index : choice}:
+  for element['#options'] in {index: choice}:
     if (is_array(choice)):
       return False
     elif (is_object(choice)):
@@ -1337,8 +1314,9 @@ def form_get_options(element, key):
         keys = index
     elif (index == key):
       keys = index
-
   return keys
+
+
 
 #
 # Format a group of form items.
@@ -1384,7 +1362,6 @@ def theme_radio(element):
   if (not is_None(element['#title'])):
     output = '<label class="option">' +  output  + ' ' + element['#title'] + '</label>'
   del(element['#title'])
-
   return theme('form_element', element, output)
 
 
@@ -1434,24 +1411,23 @@ def theme_password_confirm(element):
 #
 def expand_password_confirm(element):
   element['pass1'] =  {
-    '#type' : 'password',
-    '#title' : t('Password'),
-    '#value' : None if empty(element['#value']) else element['#value']['pass1'],
-    '#required' : element['#required'],
-    '#attributes' : {'class' : 'password-field'},
+    '#type': 'password',
+    '#title': t('Password'),
+    '#value': None if empty(element['#value']) else element['#value']['pass1'],
+    '#required': element['#required'],
+    '#attributes': {'class' : 'password-field'},
   }
   element['pass2'] =  {
-    '#type' : 'password',
-    '#title' : t('Confirm password'),
-    '#value' : None if empty(element['#value']) else element['#value']['pass2'],
-    '#required' : element['#required'],
-    '#attributes' : {'class' : 'password-confirm'},
+    '#type': 'password',
+    '#title': t('Confirm password'),
+    '#value': None if empty(element['#value']) else element['#value']['pass2'],
+    '#required': element['#required'],
+    '#attributes': {'class': 'password-confirm'},
   }
   element['#element_validate'] = dict('password_confirm_validate')
   element['#tree'] = True
   if (isset(element, '#size')):
     element['pass1']['#size'] = element['pass2']['#size'] = element['#size']
-
   return element
 
 
@@ -1472,7 +1448,6 @@ def password_confirm_validate(form, REF_form_state):
   form_set_value(form['pass1'], None, form_state)
   form_set_value(form['pass2'], None, form_state)
   form_set_value(form, pass1, form_state)
-
   return form
 
 
@@ -1499,9 +1474,9 @@ def theme_date(element):
 def expand_date(element):
   # Default to current date
   if (empty(element['#value'])):
-    element['#value'] = {'day' : format_date(time(), 'custom', 'j'),
-                         'month' : format_date(time(), 'custom', 'n'),
-                         'year' : format_date(time(), 'custom', 'Y')
+    element['#value'] = {'day': format_date(time(), 'custom', 'j'),
+                         'month': format_date(time(), 'custom', 'n'),
+                         'year': format_date(time(), 'custom', 'Y')
                          }
   element['#tree'] = True
   # Determine the order of day, month, year in the site's chosen date format.
@@ -1527,12 +1502,11 @@ def expand_date(element):
     parents = element['#parents']
     parents = type
     element[type] = {
-      '#type' : 'select',
-      '#value' : element['#value'][type],
-      '#attributes' : element['#attributes'],
-      '#options' : options,
+      '#type': 'select',
+      '#value': element['#value'][type],
+      '#attributes': element['#attributes'],
+      '#options': options,
     }
-
   return element
 
 
@@ -1571,21 +1545,20 @@ def weight_value(REF_form):
 #
 def expand_radios(element):
   if (count(element['#options']) > 0):
-    for element['#options'] in {key : choice}:
+    for element['#options'] in {key: choice}:
       if (not isset(element, key)):
         # Generate the parents as the autogenerator does, so we will have a
         # unique id for each radio button.
         parents_for_id = array_merge(element['#parents'], [key])
         element[key] = {
-          '#type' : 'radio',
-          '#title' : choice,
-          '#return_value' : check_plain(key),
-          '#default_value' : element['#default_value'] if isset(element, '#default_value') else None,
-          '#attributes' : element['#attributes'],
-          '#parents' : element['#parents'],
-          '#id' : form_clean_id('edit-' + implode('-', parents_for_id)),
+          '#type': 'radio',
+          '#title': choice,
+          '#return_value': check_plain(key),
+          '#default_value': element['#default_value'] if isset(element, '#default_value') else None,
+          '#attributes': element['#attributes'],
+          '#parents': element['#parents'],
+          '#id': form_clean_id('edit-' + implode('-', parents_for_id)),
           }
-
   return element
 
 
@@ -1619,42 +1592,38 @@ def form_expand_ahah(element):
         # Attach an additional event handler so that AHAH behaviours
         # can be triggered still via keyboard input.
         element['#ahah']['keypress'] = True
-        break
       if 'password' or 'textfield' or 'textarea':
         element['#ahah']['event'] = 'blur'
-        break
       if 'radio' or 'checkbox' or 'select':
         element['#ahah']['event'] = 'change'
-        break
   # Adding the same javascript settings twice will cause a recursion error,
   # we avoid the problem by checking if the javascript has already been added.
   if (isset(element['#ahah'], 'path') and isset(element['#ahah'], 'event') and not isset(js_added[element], '#id')):
     drupal_add_js('misc/jquery.form.js')
     drupal_add_js('misc/ahah.js')
     ahah_binding = {
-      'url'      : url(element['#ahah']['path']),
-      'event'    : element['#ahah']['event'],
-      'keypress' : None if empty(element['#ahah']['keypress']) else element['#ahah']['keypress'],
-      'wrapper'  : None if empty(element['#ahah']['wrapper']) else element['#ahah']['wrapper'],
-      'selector' : '#' + element['#id'] if empty(element['#ahah']['selector']) else element['#ahah']['selector'],
-      'effect'   : 'none' if empty(element['#ahah']['effect']) else element['#ahah']['effect'],
-      'method'   : 'replace' if empty(element['#ahah']['method']) else element['#ahah']['method'],
-      'progress' : {'type' : 'throbber'} if empty(element['#ahah']['progress']) else element['#ahah']['progress'],
-      'button'   : {element['#name'] : element['#value']} if isset(element, '#executes_submit_callback') else False,
+      'url': url(element['#ahah']['path']),
+      'event': element['#ahah']['event'],
+      'keypress': None if empty(element['#ahah']['keypress']) else element['#ahah']['keypress'],
+      'wrapper': None if empty(element['#ahah']['wrapper']) else element['#ahah']['wrapper'],
+      'selector': '#' + element['#id'] if empty(element['#ahah']['selector']) else element['#ahah']['selector'],
+      'effect': 'none' if empty(element['#ahah']['effect']) else element['#ahah']['effect'],
+      'method': 'replace' if empty(element['#ahah']['method']) else element['#ahah']['method'],
+      'progress': {'type' : 'throbber'} if empty(element['#ahah']['progress']) else element['#ahah']['progress'],
+      'button': {element['#name'] : element['#value']} if isset(element, '#executes_submit_callback') else False,
     }
     # Convert a simple #ahah[progress] type string into an array.
     if (is_string(ahah_binding['progress'])):
-      ahah_binding['progress'] = {'type' : ahah_binding['progress']}
+      ahah_binding['progress'] = {'type': ahah_binding['progress']}
     # Change progress path to a full url.
     if (isset(ahah_binding['progress'], 'path')):
       ahah_binding['progress']['url'] = url(ahah_binding['progress']['path'])
     # Add progress.js if we're doing a bar display.
     if (ahah_binding['progress']['type'] == 'bar'):
       drupal_add_js('misc/progress.js')
-    drupal_add_js({'ahah' : {element['#id'] : ahah_binding}}, 'setting')
+    drupal_add_js({'ahah': {element['#id'] : ahah_binding}}, 'setting')
     js_added[element['#id']] = True
     element['#cache'] = True
-
   return element
 
 
@@ -1697,9 +1666,7 @@ def theme_checkbox(element):
   checkbox += drupal_attributes(element['#attributes']) + ' />'
   if (not is_None(element['#title'])):
     checkbox = '<label class="option">' +  checkbox  + ' ' + element['#title'] + '</label>'
-
   del(element['#title'])
-
   return theme('form_element', element, checkbox)
 
 
@@ -1733,10 +1700,9 @@ def expand_checkboxes(element):
   if (count(element['#options']) > 0):
     if (not isset(element, '#default_value') or element['#default_value'] == 0):
       element['#default_value'] = dict()
-    for element['#options'] in {key : choice}:
+    for element['#options'] in {key: choice}:
       if (not isset(element, key)):
-        element[key] = {'#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value, key), '#attributes' : element['#attributes']}
-
+        element[key] = {'#type': 'checkbox', '#processed': True, '#title': choice, '#return_value': key, '#default_value': isset(value, key), '#attributes': element['#attributes']}
   return element
 
 
@@ -1762,7 +1728,6 @@ def theme_button(element):
     element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
   else:
     element['#attributes']['class'] = 'form-' + element['#button_type']
-
   return '<input type="submit" ' + ('' if empty(element['#name']) else 'name="' + element['#name'] + '" ') + 'id="' + element['#id'] + '" value="' + check_plain(element['#value']) + '" ' + drupal_attributes(element['#attributes']) + " />\n"
 
 
@@ -1778,7 +1743,6 @@ def theme_image_button(element):
     element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
   else:
     element['#attributes']['class'] = 'form-' + element['#button_type']
-
   return '<input type="image" name="' + element['#name'] + '" ' + (('value="' + check_plain(element['#value']) + '" ') if (not empty(element['#value'])) else '') + 'id="' + element['#id'] + '" ' + drupal_attributes(element['#attributes']) + ' src="' + base_path() + element['#src'] + '" ' + ('alt="' + check_plain(element['#title']) + '" title="' + check_plain(element['#title']) + '" ' if (not empty(element['#title'])) else '' ) + "/>\n"
 
 
@@ -1806,7 +1770,6 @@ def theme_hidden(element):
 # @ingroup themeable
 #
 def theme_token(element):
-
   return theme('hidden', element)
 
 
@@ -1838,7 +1801,6 @@ def theme_textfield(element):
   output += '<input type="text"' +  maxlength  + ' name="' . element['#name'] + '" id="' + element['#id'] + '"' + size + ' value="' + check_plain(element['#value']) + '"' + drupal_attributes(element['#attributes']) + ' />'
   if (isset(element, '#field_suffix')):
     output += ' <span class="field-suffix">' +  element['#field_suffix'] + '</span>'
-
   return theme('form_element', element, output) +  extra
 
 
@@ -1857,7 +1819,6 @@ def theme_textfield(element):
 def theme_form(element):
   # Anonymous div to satisfy XHTML compliance.
   action = 'action="' + check_url(element['#action']) + '" ' if element['#action'] else ''
-
   return '<form ' +  action  + ' accept-charset="UTF-8" method="' + element['#method'] + '" id="' + element['#id'] + '"' + drupal_attributes(element['#attributes']) + ">\n<div>" + element['#children'] + "\n</div></form>\n"
 
 
@@ -1879,15 +1840,14 @@ def theme_textarea(element):
   if (not empty(element['#teaser'])):
     drupal_add_js('misc/teaser.js')
     # Note: arrays are merged in drupal_get_js().
-    drupal_add_js({'teaserCheckbox' : {element['#id'] : element['#teaser_checkbox']}}, 'setting')
-    drupal_add_js({'teaser' : {element['#id'] : element['#teaser']}}, 'setting')
+    drupal_add_js({'teaserCheckbox': {element['#id']: element['#teaser_checkbox']}}, 'setting')
+    drupal_add_js({'teaser': {element['#id']: element['#teaser']}}, 'setting')
     _class = 'teaser'
   # Add resizable behavior
   if (element['#resizable'] != False):
     drupal_add_js('misc/textarea.js')
     _class = 'resizable'
   _form_set_class(element, _class)
-
   return theme('form_element', element, '<textarea cols="' +  element['#cols'] + '" rows="' + element['#rows'] + '" name="' + element['#name'] + '" id="' + element['#id'] + '" ' + drupal_attributes(element['#attributes']) + '>' + check_plain(element['#value']) + '</textarea>')
 
 
@@ -1906,7 +1866,6 @@ def theme_textarea(element):
 # @ingroup themeable
 #
 def theme_markup(element):
-
   return (element['#value'] if isset(element, '#value') else '') + (element['#children'] if isset(element, '#children') else '')
 
 
@@ -1927,7 +1886,6 @@ def theme_password(element):
   maxlength = ' maxlength="' + element['#maxlength'] + '" ' if element['maxlength'] else ''
   _form_set_class(element, array('form-text'))
   output = '<input type="password" name="' +  element['#name'] + '" id="' + element['#id'] + '" ' + maxlength + size + drupal_attributes(element['#attributes']) + ' />'
-
   return theme('form_element', element, output)
 
 
@@ -1942,7 +1900,6 @@ def process_weight(element):
   element['#type'] = 'select'
   element['#is_weight'] = True
   element += _element_info('select')
-
   return element
 
 
@@ -1969,7 +1926,7 @@ def process_weight(element):
 # provided by file.inc.
 #
 def theme_file(element):
-  _form_set_class(element, array('form-file'))
+  _form_set_class(element, ['form-file'])
   return theme('form_element', element, '<input type="file" name="' +  element['#name'] + '"' + (drupal_attributes(element['#attributes']) if element['#attributes'] else '') + ' id="' + element['#id'] + '" size="' + element['#size'] + "\" />\n")
 
 
@@ -1998,9 +1955,9 @@ def theme_form_element(element, value):
   if (not empty(element['#title'])):
     title = element['#title']
     if (not empty(element['#id'])):
-      output += ' <label for="' +  element['#id'] + '">' + t('not title: not required', {'not title' : filter_xss_admin(title), 'not required' : required}) + "</label>\n"
+      output += ' <label for="' +  element['#id'] + '">' + t('not title: not required', {'not title': filter_xss_admin(title), 'not required': required}) + "</label>\n"
     else:
-      output += ' <label>' +  t('not title: not required', {'not title' : filter_xss_admin(title), 'not required' : required})  + "</label>\n"
+      output += ' <label>' +  t('not title: not required', {'not title': filter_xss_admin(title), 'not required': required}) + "</label>\n"
   output += " value\n"
   if (not empty(element['#description'])):
     output += ' <div class="description">' +  element['#description'] + "</div>\n"
@@ -2048,11 +2005,11 @@ def _form_set_class(element, _class = []):
 #   The cleaned ID.
 #
 def form_clean_id(id = None, flush = False):
-  global static_formcleanid_seen_ids . #TODO!is there a method in function that checks wheather a variable is a list or a dict?
-  if (static_formcleanid_seen_ids != {}):
-    static_formcleanid_seen_ids = {}
+  global static_formcleanid_seen_ids
+  if not isinstance(static_formcleanid_seen_ids, None):
+    static_formcleanid_seen_ids = dict()
   if (flush):
-    static_formcleanid_seen_ids = {}
+    static_formcleanid_seen_ids = dict()
     return
   id = str_replace(['][', '_', ' '], '-', id)
   # Ensure IDs are unique. The first occurrence is held but left alone.
@@ -2062,10 +2019,9 @@ def form_clean_id(id = None, flush = False):
   # outputting duplicate IDs, which would break JS code and XHTML
   # validity anyways. For now, it's an acceptable stopgap solution.
   if (isset(seen_ids[id])):
-    id = id +  '-'  + seen_ids[id]++
+    id = id +  '-'  + seen_ids[id] + 1
   else:
     seen_ids[id] = 1
-
   return id
 
 
@@ -2136,7 +2092,7 @@ def form_clean_id(id = None, flush = False):
 #   result = db_query_range("SELECT nid FROM {node} WHERE nid > %d ORDER BY nid ASC", context['sandbox']['current_node'], 0, limit)
 #   while (row = db_fetch_array(result)):
 #     node = node_load(row['nid'], None, True)
-#     context['results'][] = node.nid . ' : ' . node.title
+#     context['results'].append(node.nid + ' : ' + node.title)
 #     context['sandbox']['progress']++
 #     context['sandbox']['current_node'] = node.nid
 #     context['message'] = node.title
@@ -2210,25 +2166,25 @@ def form_clean_id(id = None, flush = False):
 #
 def batch_set(batch_definition):
   if (batch_definition):
-    batch =& batch_get()
+    batch = batch_get()
     # Initialize the batch
     if (empty(batch)):
-      batch = array(
-        'sets' : array(),
-      )
+      batch = {
+        'sets': dict(),
+      }
     init = {
-      'sandbox' : dict(),
-      'results' : dict(),
-      'success' : False,
+      'sandbox': dict(),
+      'results': dict(),
+      'success': False,
     }
     # Use get_t() to allow batches at install time.
     t = get_t()
-    defaults = array(
-      'title' : t('Processing'),
-      'init_message' : t('Initializing.'),
-      'progress_message' : t('Remaining @remaining of @total.'),
-      'error_message' : t('An error has occurred.'),
-    )
+    defaults = {
+      'title': t('Processing'),
+      'init_message': t('Initializing.'),
+      'progress_message': t('Remaining @remaining of @total.'),
+      'error_message': t('An error has occurred.'),
+    }
     batch_set = init + batch_definition + defaults
     # Tweak init_message to avoid the bottom of the page flickering down after init phase.
     batch_set['init_message'] += '<br/>&nbsp;'
@@ -2241,7 +2197,7 @@ def batch_set(batch_definition):
       slice2 = array_slice(batch['sets'], batch['current_set'] + 1)
       batch['sets'] = array_merge(slice1, array(batch_set), slice2)
     else:
-      batch['sets'][] = batch_set
+      batch['sets'].append(batch_set)
 
 
 
@@ -2261,17 +2217,17 @@ def batch_set(batch_definition):
 #   URL of the batch processing page.
 #
 def batch_process(redirect = None, url = None):
-  batch =& batch_get()
+  batch = batch_get()
   if (isset(batch)):
     # Add process information
-    url = isset(url) ? url : 'batch'
-    process_info = array(
-      'current_set' : 0,
-      'progressive' : True,
-      'url' : isset(url) ? url : 'batch',
-      'source_page' : _GET['q'],
-      'redirect' : redirect,
-    )
+    url = url if isset(url) else 'batch'
+    process_info = {
+      'current_set': 0,
+      'progressive': True,
+      'url': url if isset(url) else 'batch',
+      'source_page': _GET['q'],
+      'redirect': redirect,
+    }
     batch += process_info
     if (batch['progressive']):
       # Clear the way for the drupal_goto redirection to the batch processing
@@ -2290,15 +2246,14 @@ def batch_process(redirect = None, url = None):
       # Now that we have a batch id, we can generate the redirection link in
       # the generic error message.
       t = get_t()
-      batch['error_message'] = t('Please continue to <a href="@error_url">the error page</a>', array('@error_url' : url(url, array('query' : array('id' : batch['id'], 'op' : 'finished')))))
+      batch['error_message'] = t('Please continue to <a href="@error_url">the error page</a>', {'@error_url': url(url, {'query': {'id': batch['id'], 'op': 'finished'}})})
       # Actually store the batch data and the token generated form the batch id.
       db_query("UPDATE {batch} SET token = '%s', batch = '%s' WHERE bid = %d", drupal_get_token(batch['id']), serialize(batch), batch['id'])
       drupal_goto(batch['url'], 'op=start&id=' +  batch['id'])
-    }
     else:
       # Non-progressive execution: bypass the whole progressbar workflow
       # and execute the batch in one pass.
-      require_once './includes/batch.inc'
+      #require_once './includes/batch.inc'
       _batch_process()
 
 
@@ -2306,9 +2261,12 @@ def batch_process(redirect = None, url = None):
 #
 # Retrieve the current batch.
 #
-function &batch_get():
-  static batch = array()
-  return batch
+def batch_get():
+  global static_batchget_batch
+  DrupyHelper.Reference.check(static_batchget_batch)
+  if not isinstance(static_batchget_batch, None):
+    static_batchget_batch = dict()
+  return static_batchget_batch
 
 
 
