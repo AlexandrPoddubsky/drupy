@@ -28,18 +28,20 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+import os
+import cgi
+import cgitb; cgitb.enable()
 
 #
 # Converts a filename to import path
 # @param filename
 # @return Str
 #
-def get_import(filename):
+def import_file(filename):
   name = filename.replace('/', '.')
-  mod = __import__(name)
-  components = name.split('.')
-  for comp in components[1:]:
-      mod = getattr(mod, comp)
+  if name[-3:] == '.py':
+    name = name[:-3]
+  mod = __import__(name, globals(), locals(), ['*'], -1)
   return mod
 
 
@@ -74,3 +76,7 @@ class Reference:
       raise Exception, "Argument must be an object and must contain a 'val' property."
     else:
       return True
+
+
+
+

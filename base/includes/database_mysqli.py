@@ -40,9 +40,6 @@
 # @{
 #
 
-# Include functions shared between mysql and mysqli.
-require_once( './includes/database_mysql-common.py' )
-
 
 #
 # Report database status.
@@ -80,7 +77,7 @@ def db_version():
 #
 def db_connect(url):
   # Check if MySQLi support is present in PHP
-  if (not function_exists('mysqli_init') and not extension_loaded('mysqli')):
+  if (not function_exists('mysqli_connect', globals())):
     _db_error_page('Unable to use the MySQLi database because the MySQLi extension for PHP is not installed + Check your <code>php.ini</code> to see how you can enable it.')
   url = parse_url(url, 3306)
   # Decode url-encoded information in the db connection string
@@ -149,8 +146,8 @@ def _db_query(query, debug = 0):
 #
 def db_fetch_object(result):
   if (result):
-    _object = mysqli_fetch_object(result)
-    return (_object if (_object != None) else False)
+    object_ = mysqli_fetch_object(result)
+    return (object_ if (object_ != None) else False)
 
 
 
@@ -167,8 +164,8 @@ def db_fetch_object(result):
 #
 def db_fetch_array(result):
   if (result):
-    _array = mysqli_fetch_array(result, MYSQLI_ASSOC)
-    return (_array if (_array != None) else False)
+    array_ = mysqli_fetch_array(result, MYSQLI_ASSOC)
+    return (array_ if (array_ != None) else False)
 
 
 
@@ -187,8 +184,8 @@ def db_result(result):
   if (result and mysqli_num_rows(result) > 0):
     # The mysqli_fetch_row function has an optional second parameter row
     # but that can't be used for compatibility with Oracle, DB2, etc.
-    _array = mysqli_fetch_row(result)
-    return _array[0]
+    array_ = mysqli_fetch_row(result)
+    return array_[0]
   return False
 
 
@@ -244,14 +241,14 @@ def db_affected_rows():
 def db_query_range(query):
   args = func_get_args()
   count = array_pop(args)
-  _from = array_pop(args)
+  from_ = array_pop(args)
   array_shift(args)
   query = db_prefix_tables(query)
   if (isset(args, 0) and is_array(args, 0)): # 'All arguments in one array' syntax
     args = args[0]
   _db_query_callback(args, True)
   query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', query)
-  query += ' LIMIT ' +  int(_from)  + ', ' . int(count)
+  query += ' LIMIT ' +  int(from_)  + ', ' . int(count)
   return _db_query(query)
 
 
@@ -393,3 +390,8 @@ def db_distinct_field(table, field, query):
 # @} End of "ingroup database".
 #
 
+# Include functions shared between mysql and mysqli.
+from includes.database import *
+from lib.drupy.DrupyPHP import *
+from lib.drupy.DrupyMySQL import *
+from includes.database_mysql_common import *

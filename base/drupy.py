@@ -30,9 +30,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 import time
-
-execfile('./lib/drupy/DrupyPHP.py', globals())
-execfile('./includes/bootstrap.py', globals());
+from lib.drupy.DrupyPHP import *
+from includes.bootstrap import *
 
 phases = (
   (DRUPAL_BOOTSTRAP_CONFIGURATION,    'DRUPAL_BOOTSTRAP_CONFIGURATION'),
@@ -54,7 +53,7 @@ stamp = time.strftime("%c GMT", time.gmtime())
 #
 # Executed from Web
 #
-if _SERVER['WEB']:
+if SERVER['WEB']:
   print "Content-Type: text/html; Charset=UTF-8\r\n\r\n";
   print "<?xml version='1.0' encoding='UTF-8'?>"
   print "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " + \

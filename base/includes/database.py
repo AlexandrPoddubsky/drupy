@@ -29,6 +29,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+
+
 active_db = None
 
 
@@ -39,7 +41,6 @@ active_db = None
 #
 DB_ERROR = 'a515ac9c2796ca0e23adbe92c68fc9fc'
 DB_QUERY_REGEXP = '/(%d|%s|%%|%f|%b)/'
-
 
 
 #
@@ -141,6 +142,10 @@ def db_prefix_tables(sql):
 #
 # @return the name of the previously active database or FALSE if non was found.
 #
+# @todo BC: Need to eventually resolve the database importing mechanism here
+# right now we are statically loading mysql at the top, but eventually we need
+# to get this figured out 
+#
 def db_set_active(name = 'default'):
   global db_url, db_type, active_db, db_prefix;
   static(db_set_active, 'db_conns', {})
@@ -155,19 +160,19 @@ def db_set_active(name = 'default'):
     else:
       connect_url = db_url;
     db_type = substr(connect_url, 0, strpos(connect_url, '://'));
-    handler = "./includes/database_%(db_type)s.py" % {'db_type' : db_type};
-    if (is_file(handler)):
-      include_once(handler);
-    else:
-      _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
+    #handler = "includes/database_%(db_type)s.py" % {'db_type' : db_type};
+    #try:
+    #  import db file here
+    #except ImportError:
+    #  _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
     db_set_active.db_conns[name] = db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent header.
-    if (preg_match("/^simpletest\d+$/", _SERVER['HTTP_USER_AGENT'])):
-      db_prefix = _SERVER['HTTP_USER_AGENT'];
+    if (preg_match("/^simpletest\d+$/", SERVER['HTTP_USER_AGENT'])):
+      db_prefix = SERVER['HTTP_USER_AGENT'];
   previous_name = db_set_active.active_name;
   # Set the active connection.
-  static_dbsetactive_activename = name;
+  db_set_active.active_name = name;
   active_db = db_set_active.db_conns[name];
   return previous_name;
 
@@ -246,3 +251,13 @@ def db_placeholders(arguments, type = 'int'):
 #
 #
 # Helper function
+
+#
+# Includes
+#
+from lib.drupy.DrupyPHP import *
+from sites.default.settings import *
+from includes.bootstrap import *
+from lib.drupy import DrupyHelper
+from includes.database_mysqli import *
+

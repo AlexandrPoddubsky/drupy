@@ -54,9 +54,10 @@ from PIL import Image
 from lib.drupy import DrupyHelper
 
 #
-# Drupy helpers
+# Helpers
 #
-drupy_buffer = []
+
+DRUPY_OUTPUT = ""
 
 #
 # PHP Constants
@@ -65,6 +66,29 @@ ENT_QUOTES = 1
 E_USER_WARNING = 512
 E_ALL = 6143
 
+#
+# THIS FUNCTION SHOULD BE DEPRECATED EVENTUALLY
+# Sets globals variable
+# @param Str name
+# @param Number,Str val
+# @return Bool
+#
+def define(name, val = None):
+  v = {'name':name}
+  if \
+      isinstance(val, int) or \
+      isinstance(val, float) or \
+      isinstance(val, bool) or \
+      val == None:
+    v['val'] = val
+  elif isinstance(val, str):
+    v['val'] = "'%s'" % val
+  else:
+    return false
+  out = ("%(name)s = %(val)s") % v
+  exec(out, globals())
+  return True
+    
 
 #
 # Base 64 encode
@@ -130,32 +154,32 @@ def call_user_func_array(func, args):
 # Output buffering start
 # @return Int
 #
-def ob_start():
-  global drupy_buffer
-  drupy_buffer.append( StringIO.StringIO() )
-  outIndex = len(drupy_buffer) - 1
-  sys.stdout = drupy_buffer[outIndex]
-  return outIndex
+#def ob_start():
+#  global drupy_buffer
+#  drupy_buffer.append( StringIO.StringIO() )
+#  outIndex = len(drupy_buffer) - 1
+#  sys.stdout = drupy_buffer[outIndex]
+#  return outIndex
 
 
 #
 # Get output buffering contents
 # @return Str
 #
-def ob_get_clean():
-  global drupy_buffer
-  outLen = len(drupy_buffer)
-  if outLen < 1:
-    return None
-  outIndex = outLen - 1
-  data = drupy_buffer[outIndex].getValue()  
-  if outIndex > 0:
-    sys.stdout = drupy_buffer[outIndex - 1]
-  else:
-    sys.stdout = sys.__stdout__
-  close(drupy_buffer[outIndex])
-  del drupy_buffer[outIndex]
-  return data
+#def ob_get_clean():
+#  global drupy_buffer
+#  outLen = len(drupy_buffer)
+#  if outLen < 1:
+#    return None
+#  outIndex = outLen - 1
+#  data = drupy_buffer[outIndex].getValue()  
+#  if outIndex > 0:
+#    sys.stdout = drupy_buffer[outIndex - 1]
+#  else:
+#    sys.stdout = sys.__stdout__
+#  close(drupy_buffer[outIndex])
+#  del drupy_buffer[outIndex]
+#  return data
   
 
 
@@ -167,34 +191,6 @@ def ob_get_clean():
 #
 def array_filter(item, func):
   return filter(func, item)
-
-
-
-#
-# Sets globals variable
-# @param Str name
-# @param Number,Str val
-# @return Bool
-#
-def define(name, val = None):
-  vars = {'name':name}
-  if \
-      isinstance(val, int) or \
-      isinstance(val, float) or \
-      isinstance(val, bool) or \
-      val == None:
-    vars['val'] = val
-  elif isinstance(val, str):
-    vars['val'] = "'%(val)s'" % {'val':val}
-  else:
-    return false 
-  out = \
-    ("global %(name)s\n" + \
-    "%(name)s = %(val)s") \
-    % vars
-  exec(out, globals())
-  return True
-
 
 
 #
@@ -342,7 +338,7 @@ def isset(obj, val = None, searchGlobal = False, data = {}):
 # Get time
 # @return Int
 #
-def drupy_time():
+def time_():
   return time.time()
 
 
@@ -639,7 +635,7 @@ def print_r(data, ret = False):
 # @param Dict dic
 # @return Object
 #
-def drupy_object(dic):
+def object_(dic):
   out = stdClass()
   for i in dic:
     setattr(out, i, dic[i])
@@ -650,7 +646,7 @@ def drupy_object(dic):
 # @param Object obj
 # @return Dict
 #
-def drupy_array(obj):
+def array_(obj):
   out = {}
   mag = '__'
   for i in dir(obj):
@@ -677,31 +673,6 @@ def array_reverse(items):
   rItems = copy.deepcopy(items)
   rItems.reverse()
   return rItems
-
-
-#
-# prepares pattern for python regex
-# @param Str pat
-# @return _sre.SRE_Pattern
-#    Regular Expression object
-#
-def __preg_setup(pat):
-  delim = pat[0]
-  flg = 0
-  pat = pat.lstrip(delim)
-  i = len(pat) - 1
-  while True:
-    if i < 1:
-      break
-    else:
-      if pat[i] == delim:
-        pat = pat[0:len(pat)-1]
-        break
-      else:
-        flg = flg | (eval('re.' + pat[i].upper(), globals()))
-        pat = pat[0:len(pat)-1]
-        i = i - 1
-  return re.compile(pat, flg)
 
 
 #
@@ -818,15 +789,7 @@ def str_replace(pat, rep, subject):
   return out
   
 
-#
-# str replace real
-# @param Str pat
-# @param Str rep
-# @param Str subject
-# @return Str
-#
-def __str_replace_str(pat, rep, subject):
-  return subject.replace(pat, rep)
+
 
 
 
@@ -850,28 +813,6 @@ def preg_replace(pat, rep, subject):
   else:
     out = __preg_replace_str(pat, rep, subject)
   return out
-    
-
-#
-# Real preg replace
-# @param Str pat
-# @param Str replace
-# @param Str subject
-# @return Str
-#
-def __preg_replace_str(pat, rep, subject):
-  reg = __preg_setup(pat)
-  # function call
-  if callable(rep):
-    def __callback(match):
-      match_list = list(match.groups())
-      match_list.insert(0, subject)
-      match_list = tuple(match_list)
-      return rep(match_list)
-    return reg.sub(__callback, subject)
-  # string
-  else:
-    return reg.sub(rep, subject)
 
 
 #
@@ -1042,7 +983,7 @@ def addslashes(val):
 # @param Str val
 # @return Str
 #
-def drupy_md5(val):
+def md5(val):
   return hashlib.md5(val).hexdigest()
 
 
@@ -1082,7 +1023,7 @@ class stdClass:
 #
 # Class to handle super globals
 #
-class SuperGlobals:
+class __SuperGlobals:
   
   #
   # _SERVER vars
@@ -1098,14 +1039,16 @@ class SuperGlobals:
         'WEB' : False,
         'DOCUMENT_ROOT': env['PWD'],
         'GATEWAY_INTERFACE': 'CGI/1.1',
-        'HTTP_ACCEPT': 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+        'HTTP_ACCEPT': 'text/xml,application/xml,application/xhtml+xml,' + \
+          'text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
         'HTTP_ACCEPT_CHARSET': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
         'HTTP_ACCEPT_ENCODING': 'gzip,deflate',
         'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.5',
         'HTTP_CONNECTION': 'keep-alive',
         'HTTP_HOST': 'localhost',
         'HTTP_KEEP_ALIVE': '300',
-        'HTTP_USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.12) Gecko/20080201 Firefox/2.0.0.12',
+        'HTTP_USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; ' + \
+          'en-US; rv:1.8.1.12) Gecko/20080201 Firefox/2.0.0.12',
         'QUERY_STRING': '',
         'REMOTE_ADDR': '127.0.0.1',
         'REMOTE_PORT': '49999',
@@ -1125,7 +1068,6 @@ class SuperGlobals:
     else:
       env['WEB'] = True
       return env
-      
   
   #
   # _GET vars
@@ -1161,6 +1103,63 @@ class SuperGlobals:
     return array_merge(get, post)
 
 
+
+#
+# prepares pattern for python regex
+# @param Str pat
+# @return _sre.SRE_Pattern
+#    Regular Expression object
+#
+def __preg_setup(pat):
+  delim = pat[0]
+  flg = 0
+  pat = pat.lstrip(delim)
+  i = len(pat) - 1
+  while True:
+    if i < 1:
+      break
+    else:
+      if pat[i] == delim:
+        pat = pat[0:len(pat)-1]
+        break
+      else:
+        flg = flg | (eval('re.' + pat[i].upper(), globals()))
+        pat = pat[0:len(pat)-1]
+        i = i - 1
+  return re.compile(pat, flg)
+
+
+#
+# str replace real
+# @param Str pat
+# @param Str rep
+# @param Str subject
+# @return Str
+#
+def __str_replace_str(pat, rep, subject):
+  return subject.replace(pat, rep)
+
+#
+# Real preg replace
+# @param Str pat
+# @param Str replace
+# @param Str subject
+# @return Str
+#
+def __preg_replace_str(pat, rep, subject):
+  reg = __preg_setup(pat)
+  # function call
+  if callable(rep):
+    def __callback(match):
+      match_list = list(match.groups())
+      match_list.insert(0, subject)
+      match_list = tuple(match_list)
+      return rep(match_list)
+    return reg.sub(__callback, subject)
+  # string
+  else:
+    return reg.sub(rep, subject)
+
    
 #
 # Set Aliases
@@ -1168,7 +1167,6 @@ class SuperGlobals:
 gzencode = gzdeflate
 gzdecode = gzinflate
 sizeof = count
-set_global = define
 require_once = include
 require = include
 include_once = include
@@ -1180,9 +1178,9 @@ is_writeable = is_writable
 #
 # Superglobals
 #
-_SERVER = SuperGlobals.getSERVER()
-_GET = SuperGlobals.getGET()
-_POST = SuperGlobals.getPOST()
-_REQUEST = SuperGlobals.getREQUEST(_GET, _POST)
+SERVER = __SuperGlobals.getSERVER()
+GET = __SuperGlobals.getGET()
+POST = __SuperGlobals.getPOST()
+REQUEST = __SuperGlobals.getREQUEST(GET, POST)
 
 
