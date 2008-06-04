@@ -1,9 +1,22 @@
 author: morphir
 
-NOTE: Drupy is now in GIT
-      THIS IDEA IS NOW IMPLEMENTED.
+
+IMPORTANT SECURITY NOTE!
+-----------------------
+When cloning drupy, always do a:
+
+  gitignore base/sites/default/setting.py
+
+(you do not want to commit your mysql password and username)
 
 
+
+NOTE: Drupy uses GIT now.
+      THIS IDEA IS NOW SOMEWHAT IMPLEMENTED.
+
+
+BRANCH STRUCTURE
+----------------
 Solving porting issues with branches.
 
 Today I got this excellent idea, or I should say a solution to this problem I've been pondering.
@@ -20,8 +33,8 @@ Branch #2: The straight port of drupal to python + all the custom stuff we want.
 
 With Branch #1 we just continue to port commits from Drupal HEAD branch. 
 Then we merge the changes from Branch #1 into Branch #2. Where Branch #2 is the main drupy branch.
-With Branch #1 it will be easy to port changes, and track history, and possible revert something if the shit
-hits the fan.
+With Branch #1 it will be easy to port changes, and track history, and possible revert something if we experience a shit.hits.the.fan situation.
 *************************************************************************************************************
 
-To have this work as smoothly as possible, we would need git.
+NOTE: Drupy is now in GIT
+      THIS IDEA IS NOW IMPLEMENTED.
