@@ -30,6 +30,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+from lib.drupy.DrupyPHP import *
+
 def sess_open(save_path, session_name):
   return True
 
@@ -172,5 +174,4 @@ def session_save_session(status = None):
   if status != None:
     session_save_session.save_session = status
   return session_save_session.save_session
-
 

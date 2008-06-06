@@ -179,9 +179,13 @@ from lib.drupy.DrupyPHP import *
 from lib.drupy import DrupySession
 from lib.drupy import DrupyHelper
 from sites.default.settings import *
-from includes.cache import *
-from includes.database import *
-from includes.session import *
+import cache as inc_cache
+import database as inc_database
+import session as inc_session
+import theme_maintenance as inc_theme_maintenance
+import module as inc_module
+import path as inc_path
+import common as inc_common
 
 
 #
@@ -379,7 +383,7 @@ def conf_init():
 #
 def drupal_get_filename(type_, name, filename = None):
   static(drupal_get_filename, 'files', {})
-  file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type_))
+  file = inc_database.db_result(inc_database.db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type_))
   if (not isset(drupal_get_filename.files, type_)):
     drupal_get_filename.files[type_] = {}
   if (filename != None and file_exists(filename)):
@@ -837,7 +841,7 @@ def drupal_is_denied(ip):
     return in_array(ip, blocked_ips)
   else:
     sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
-    return (db_result(db_query(sql, ip)) != False)
+    return (inc_database.db_result(inc_database.db_query(sql, ip)) != False)
 
 
 #
@@ -909,7 +913,7 @@ def _drupal_bootstrap(phase):
       exit();
   elif phase == DRUPAL_BOOTSTRAP_DATABASE:
     # Initialize the default database.
-    db_set_active();
+    inc_database.db_set_active();
     # Register autoload functions so that we can access classes and interfaces.
     # spl_autoload_register('drupal_autoload_class')
     # spl_autoload_register('drupal_autoload_interface')
@@ -918,15 +922,13 @@ def _drupal_bootstrap(phase):
     if (drupal_is_denied(ip_address())):
       header('HTTP/1.1 403 Forbidden');
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
-      exit();
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
-    session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
-    session_start();
+    inc_session.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
+    inc_session.session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
     # Initialize configuration variables, using values from settings.php if available.
     conf = variable_init( ({} if (conf == None) else conf) );
     # Load module handling.
-    require_once('./includes/module.inc', locals());
     cache_mode = variable_get('cache', CACHE_DISABLED);
     # Get the page from the cache.
     cache =  ('' if (cache_mode == CACHE_DISABLED) else page_get_cache());
@@ -946,13 +948,10 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
     drupal_init_language();
   elif DRUPAL_BOOTSTRAP_PATH:
-    require_once('./includes/path.inc', locals());
     # Initialize GET['q'] prior to loading modules and invoking hook_init().
     drupal_init_path();
   elif phase == DRUPAL_BOOTSTRAP_FULL:
-    require_once('./includes/common.inc', locals());
     _drupal_bootstrap_full();
-
 
 
 #
@@ -964,8 +963,8 @@ def _drupal_bootstrap(phase):
 # @see _drupal_maintenance_theme()
 #
 def drupal_maintenance_theme():
-  require_once( './includes/theme_maintenance.py', globals());
-  _drupal_maintenance_theme();
+  inc_theme_maintenance._drupal_maintenance_theme();
+
 
 
 #
