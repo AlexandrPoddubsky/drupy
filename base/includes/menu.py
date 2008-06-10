@@ -403,6 +403,7 @@ def _menu_load_objects(item, map_):
   return True
 
 
+
 #
 # Check access to a menu item using the access callback
 #
