@@ -1,4 +1,4 @@
-# $Id: bootstrap.inc,v 1.210 2008/05/13 17:38:42 dries Exp $
+# $Id: bootstrap.inc,v 1.211 2008/05/26 17:12:54 dries Exp $
 
 #
 # @package Drupy
@@ -41,7 +41,7 @@ db_prefix = None
 cookie_domain = None
 installed_profile = None
 update_free_access = None
-language = None
+language_ = None
 timers = None
 conf = None
 
@@ -76,19 +76,65 @@ CACHE_NORMAL = 1
 CACHE_AGGRESSIVE = 2
 
 #
+# Log message severity -- Alert: action must be taken immediately.
 #
-# Severity levels, as defined in RFC 3164 http://www.faqs.org/rfcs/rfc3164.html
 # @see watchdog()
 # @see watchdog_severity_levels()
 #
-WATCHDOG_EMERG = 0 # Emergency: system is unusable
-WATCHDOG_ALERT = 1 # Alert: action must be taken immediately
-WATCHDOG_CRITICAL = 2 # Critical: critical conditions
-WATCHDOG_ERROR = 3 # Error: error conditions
-WATCHDOG_WARNING = 4 # Warning: warning conditions
-WATCHDOG_NOTICE = 5 # Notice: normal but significant condition
-WATCHDOG_INFO = 6 # Informational: informational messages
-WATCHDOG_DEBUG = 7 # Debug: debug-level messages
+
+WATCHDOG_ALERT = 1
+
+#
+# Log message severity -- Critical: critical conditions.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+WATCHDOG_CRITICAL = 2
+
+#
+# Log message severity -- Error: error conditions.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_ERROR = 3
+
+#
+# Log message severity -- Warning: warning conditions.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_WARNING = 4
+
+#
+# Log message severity -- Notice: normal but significant condition.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+WATCHDOG_NOTICE = 5
+
+#
+# Log message severity -- Informational: informational messages.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_INFO = 6
+
+#
+# Log message severity -- Debug: debug-level messages.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_DEBUG = 7
 
 #
 # First bootstrap phase: initialize configuration.
@@ -176,7 +222,6 @@ LANGUAGE_NEGOTIATION_DOMAIN = 3
 # INcludes
 #
 from lib.drupy.DrupyPHP import *
-from lib.drupy import DrupySession
 from lib.drupy import DrupyHelper
 from sites.default.settings import *
 import cache as inc_cache
@@ -186,6 +231,7 @@ import theme_maintenance as inc_theme_maintenance
 import module as inc_module
 import path as inc_path
 import common as inc_common
+import language as inc_language
 
 
 #
@@ -349,7 +395,7 @@ def conf_init():
   if (count(explode('.', cookie_domain)) > 2 and not is_numeric(str_replace('.', '', cookie_domain))):
     ini_set('session.cookie_domain', cookie_domain);
   #print session_name;
-  DrupySession.session_name('SESS' + md5(session_name_));
+  inc_session.sess_name('SESS' + md5(session_name_));
 
 
 
@@ -428,17 +474,18 @@ def drupal_get_filename(type_, name, filename = None):
 #
 def variable_init(conf_ = {}):
   # NOTE: caching the variables improves performance by 20% when serving cached pages.
-  cached = cache_get('variables', 'cache');
+  cached = inc_cache.cache_get('variables', 'cache');
   if (cached):
     variables = cached.data;
   else:
-    result = db_query('SELECT# FROM {variable}');
+    variables = {}
+    result = inc_database.db_query('SELECT * FROM {variable}');
     while True:
-      variable = db_fetch_object(result);
+      variable = inc_database.db_fetch_object(result);
       if (not variable):
         break;
       variables[variable.name] = unserialize(variable.value);
-    cache_set('variables', variables);
+    inc_cache.cache_set('variables', variables);
   for name,value in conf_.items():
     variables[name] = value;
   return variables;
@@ -522,8 +569,8 @@ def page_get_cache():
 #   The name of the bootstrap hook we wish to invoke.
 #
 def bootstrap_invoke_all(hook):
-  for module in module_list(True, True):
-    module_invoke(module, hook);
+  for module_ in inc_module.module_list(True, True):
+    inc_module.module_invoke(module_, hook);
 
 
 #
@@ -922,6 +969,7 @@ def _drupal_bootstrap(phase):
     if (drupal_is_denied(ip_address())):
       header('HTTP/1.1 403 Forbidden');
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
+      exit()
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
     inc_session.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
     inc_session.session_start();
@@ -949,7 +997,7 @@ def _drupal_bootstrap(phase):
     drupal_init_language();
   elif DRUPAL_BOOTSTRAP_PATH:
     # Initialize GET['q'] prior to loading modules and invoking hook_init().
-    drupal_init_path();
+    inc_path.drupal_init_path();
   elif phase == DRUPAL_BOOTSTRAP_FULL:
     _drupal_bootstrap_full();
 
@@ -983,13 +1031,13 @@ def get_t():
 #  Choose a language for the current page, based on site and user preferences.
 #
 def drupal_init_language():
+  global language_
   # Ensure the language is correctly returned, even without multilanguage support.
   # Useful for eg. XML/HTML 'lang' attributes.
   if (variable_get('language_count', 1) == 1):
-    language = language_default();
+    language_ = language_default();
   else:
-    include_once('./includes/language.inc', locals());
-    language = language_initialize();
+    language_ = inc_language.language_initialize();
 
 
 #
@@ -1036,7 +1084,7 @@ def language_list(field = 'language', reset = False):
 #   Optional property of the language object to return
 #
 def language_default(property = None):
-  theList = drupy_object({
+  language_local = variable_get('language_default', object_({
     'language' : 'en',
     'name' : 'English',
     'native' : 'English',
@@ -1048,9 +1096,8 @@ def language_default(property = None):
     'prefix' : '',
     'weight' : 0,
     'javascript' : ''
-  });
-  languagelist_language = variable_get('language_default', theList);
-  return (language.property if property else language);
+  }));
+  return (getattr(language_local, property) if (property != None) else language_local);
 
 
 #

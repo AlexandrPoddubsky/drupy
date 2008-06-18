@@ -30,7 +30,8 @@
 
 import os
 import cgi
-import cgitb; cgitb.enable()
+import cgitb
+
 
 #
 # Converts a filename to import path
