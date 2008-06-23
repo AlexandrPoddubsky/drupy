@@ -18,7 +18,7 @@
 # @depends Image (http://www.pythonware.com/products/pil/)
 # @depends Hashlib (http://code.krypto.org/python/hashlib/)
 # @depends Zlib (http://linux.maruhn.com/sec/python-zlib.html)
-# @license: 
+# @license:
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -141,7 +141,7 @@ class stdClass:
 # Class to handle super globals
 #
 class __SuperGlobals:
-  
+
   #
   # _SERVER vars
   # If this is not being run from a webserver, we will simulate
@@ -185,7 +185,7 @@ class __SuperGlobals:
     else:
       env['WEB'] = True
       return env
-  
+
   #
   # _GET vars
   # @return Dict
@@ -193,7 +193,7 @@ class __SuperGlobals:
   @staticmethod
   def getGET():
     return cgi.parse()
-  
+
   #
   # _POST vars
   # @return Dict
@@ -218,7 +218,7 @@ class __SuperGlobals:
   @staticmethod
   def getREQUEST(get, post):
     return array_merge(get, post)
-  
+
   #
   # _SESSION vars
   # @return Dict
@@ -253,7 +253,7 @@ class __Output:
   def write(self, data):
     if self._usebuffer:
       self._body += data
-  
+
   #
   # Write headers
   # @param Str data
@@ -261,7 +261,7 @@ class __Output:
   def header(self, data, replace = True):
     if self._usebuffer:
       parts = re.split('\s*:\s*', str(data), 1)
-      parts_len = len(parts) 
+      parts_len = len(parts)
       if parts_len > 0:
         if parts_len == 1:
           name = 'status'
@@ -273,7 +273,7 @@ class __Output:
 
   #
   # Get header string
-  # @param Str item 
+  # @param Str item
   #
   def _get_header(self, item, remove = True):
     if self._headers.has_key(item):
@@ -286,7 +286,7 @@ class __Output:
     else:
       out = ''
     return out
-  
+
   #
   # Set a header
   # @param Str item
@@ -299,7 +299,7 @@ class __Output:
       self._headers[item] = val
       return True
     return False
-    
+
   #
   # Flush buffer
   # For now this is only constructed to work with CGI
@@ -316,7 +316,7 @@ class __Output:
         sys.stdout.write( self._get_header(k) )
       sys.stdout.write( CRLF )
       sys.stdout.write( self._body )
-    
+
 # end __Output
 
 
@@ -377,7 +377,7 @@ def define(name, val = None):
   out = ("%(name)s = %(val)s") % v
   exec(out, globals())
   return True
-    
+
 
 #
 # Base 64 encode
@@ -437,7 +437,7 @@ def uasort(item, func):
 #
 def call_user_func_array(func, args):
   return (eval(func)(*tuple(args)))
-  
+
 
 
 #
@@ -453,7 +453,7 @@ def array_filter(item, func):
 #
 # GD image size
 # @param Str filename
-# @return 
+# @return
 #
 def getimagesize(filename):
   img = Image.open(filename)
@@ -469,7 +469,7 @@ def getimagesize(filename):
 # @param Str delim
 # @param Str val
 # @return Str
-#  
+#
 def explode(delim, val, limit = None):
   if limit != None:
     return val.split(delim, limit)
@@ -490,7 +490,7 @@ def microtime():
 # CHecks file is writeable
 # @param Str filename
 # @return Bool
-# 
+#
 def is_writable(filename):
   return os.access(filename, os.W_OK)
 
@@ -508,8 +508,8 @@ def is_dir(filename):
 # Merges lists
 # @param Dict,List a1
 # @param Dict,List a2
-# @return Dict,List 
-# 
+# @return Dict,List
+#
 def array_merge(a1, a2):
   out = copy.deepcopy(a1)
   for k in a2:
@@ -537,8 +537,8 @@ def array_key_exists(name, item):
 
 
 #
-# Check variable existance
 # @param Dict,List,Object obj
+# Check variable existance
 # @param Str,Int val
 # @param Bool searchGlobal
 #
@@ -812,7 +812,7 @@ def file_exists(filename):
 # @param Str filename
 # @param Dict scope
 # @return Bool
-# 
+#
 def include(filename, scope = None):
   if (scope != None):
     execfile(filename, scope)
@@ -918,7 +918,7 @@ def array_(obj):
 # Get strlen
 # @param Str val
 # @return Int
-# 
+#
 def strlen(val):
   return len(val)
 
@@ -995,7 +995,7 @@ def preg_match_all(pat, subject, matches = None):
     out = [[]]
     matches.val = out
     return 0
-    
+
 
 
 
@@ -1046,7 +1046,7 @@ def str_replace(pat, rep, subject):
   else:
     out = __str_replace_str(pat, rep, subject)
   return out
-  
+
 
 
 
@@ -1240,7 +1240,7 @@ def stripslashes(val):
 #
 def addslashes(val):
   return re.escape(val)
-  
+
 
 #
 # md5
