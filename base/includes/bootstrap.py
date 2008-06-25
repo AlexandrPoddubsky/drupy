@@ -257,6 +257,7 @@ def timer_start(name):
   timers[name]['count'] = ((timers[name]['count'] + 1) if p.isset(timers[name],'count') else 1);
 
 
+
 #
 # Read the current timer value without stopping the timer.
 #
@@ -276,6 +277,7 @@ def timer_read(name):
     return diff;
 
 
+
 #
 # Stop the timer with the specified name.
 #
@@ -291,6 +293,7 @@ def timer_stop(name):
   timers[name]['time'] = timer_read(name);
   del(timers[name]['start']);
   return timers[name];
+
 
 
 #
@@ -337,12 +340,15 @@ def conf_path(require_settings = True, reset = False):
   pass
 
 
+
 #
 # Unsets all disallowed global variables. See allowed for what's allowed.
 #
 def drupal_unset_globals():
   # Do nothing
   pass;
+
+
 
 #
 # Loads the configuration and sets the base URL, cookie domain, and
@@ -355,7 +361,7 @@ def conf_init():
     update_free_access, conf;
   conf = {};
   if (base_url != None):
-    # Parse fixed base URL from settings.php.
+    # Parse fixed base URL from settings.p.
     parts = p.parse_url(base_url);
     if (not p.isset(parts, 'path')):
       parts['path'] = '';
@@ -496,7 +502,6 @@ def variable_init(conf_ = {}):
 
 
 
-
 #
 # Return a persistent variable.
 #
@@ -510,6 +515,7 @@ def variable_init(conf_ = {}):
 def variable_get(name, default_):
   global conf;
   return  (conf[name] if p.isset(conf, name) else default_);
+
 
 
 #
@@ -545,6 +551,7 @@ def variable_del(name):
   del(conf[name]);
 
 
+
 #
 # Retrieve the current page from the cache.
 #
@@ -565,7 +572,6 @@ def page_get_cache():
 
 
 
-
 #
 # Call all init or exit hooks without including all modules.
 #
@@ -575,6 +581,7 @@ def page_get_cache():
 def bootstrap_invoke_all(hook):
   for module_ in inc_module.module_list(True, True):
     inc_module.module_invoke(module_, hook);
+
 
 
 #
@@ -603,6 +610,7 @@ def drupal_load(type_, name):
       return True;
     else:
       return False;
+
 
 
 #
@@ -637,7 +645,7 @@ def drupal_page_cache_header(cache):
   etag = '"' + drupy_md5(last_modified) + '"';
   # See if the client has provided the required HTTP headers:
   if_modified_since =  (p.stripslashes(p.SERVER['HTTP_IF_MODIFIED_SINCE']) \
-    if p.isset(p.SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
+    if p.isset(ph.SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
   if_none_match = (p.stripslashes(p.SERVER['HTTP_IF_NONE_MATCH']) \
     if p.isset(p.SERVER, 'HTTP_IF_NONE_MATCH') else False);
   if (if_modified_since and if_none_match
@@ -667,7 +675,6 @@ def drupal_page_cache_header(cache):
   for p.header_ in headers:
     p.header(p.header_);
   print cache.data;
-
 
 
 
@@ -714,6 +721,7 @@ def referer_uri():
 #
 def check_plain(text):
   return (p.htmlspecialchars(text, p.ENT_QUOTES) if drupal_validate_utf8(text) else '');
+
 
 
 #
@@ -874,7 +882,7 @@ def drupal_get_messages(type = None, clear_queue = True):
 # Check to see if an IP address has been blocked.
 #
 # Blocked IP addresses are stored in the database by default. However for
-# performance reasons we allow an override in settings.php. This allows us
+# performance reasons we allow an override in settings.p. This allows us
 # to avoid querying the database at this critical stage of the bootstrap if
 # an administrative interface for IP address blocking is not required.
 #
@@ -893,6 +901,7 @@ def drupal_is_denied(ip):
   else:
     sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
     return (inc_database.db_result(inc_database.db_query(sql, ip)) != False)
+
 
 
 #
@@ -1007,6 +1016,7 @@ def _drupal_bootstrap(phase):
     inc_common._drupal_bootstrap_full();
 
 
+
 #
 # Enables use of the theme system without requiring database access.
 #
@@ -1043,6 +1053,7 @@ def drupal_init_language():
     language_ = language_default();
   else:
     language_ = inc_language.language_initialize();
+
 
 
 #
@@ -1105,6 +1116,7 @@ def language_default(property = None):
   return (getattr(language_local, property) if (property != None) else language_local);
 
 
+
 #
 # If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
 # instead of p.SERVER['REMOTE_ADDR'], which would be the IP address
@@ -1127,6 +1139,7 @@ def ip_address():
         # recently added one, i.e. the last one.
         ip_address.ip_address = p.array_pop(p.explode(',', p.SERVER['HTTP_X_FORWARDED_FOR']));
   return ip_address.ip_address;
+
 
 
 #
@@ -1212,6 +1225,7 @@ def _registry_check_code(type_, name):
     return True
 
 
+
 #
 # Collect the resources used for this request.
 #
@@ -1231,7 +1245,6 @@ def registry_mark_code(type_, name, return_ = False):
       registry_mark_code.resources[type].append( name )
   if (return_):
     return registry_mark_code.resources
-
 
 
 
@@ -1268,7 +1281,6 @@ def registry_cache_hook_implementations(hook, write_to_persistent_cache = False)
 
 
 
-
 #
 # Save the files required by the registry for this path.
 #
@@ -1295,7 +1307,6 @@ def registry_cache_path_files():
       if (files != registry_load_path_files(True)):
         menu = menu_get_item();
         cache_set('registry:' + menu['path'], p.implode(';', files), 'cache_registry');
-
 
 
 
