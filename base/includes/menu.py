@@ -29,7 +29,8 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+#  MA  02110-1301, USA.
 #
 
 from lib.drupy import DrupyPHP as p
@@ -234,37 +235,36 @@ MENU_MAX_PARTS = 7
 #
 MENU_MAX_DEPTH = 9
 
-#
-# @} End of "Menu tree parameters".
-#
-#
-# Returns the ancestors (and relevant placeholders) for any given path.
-#
-# For example, the ancestors of node/12345/edit are:
-# - node/12345/edit
-# - node/12345/%
-# - node/%/edit
-# - node/%/%
-# - node/12345
-# - node/%
-# - node
-#
-# To generate these, we will use binary numbers. Each bit represents a
-# part of the path. If the bit is 1, then it represents the original
-# value while 0 means wildcard. If the path is node/12/edit/foo
-# then the 1011 bitstring represents node/%/edit/foo where % means that
-# any argument matches that part.  We limit ourselves to using binary
-# numbers that correspond the patterns of wildcards of router items that
-# actually exists.  This list of 'masks' is built in menu_rebuild().
-#
-# @param parts
-#   An array of path parts, for the above example
-#   array('node', '12345', 'edit').
-# @return
-#   An array which contains the ancestors and placeholders. Placeholders
-#   simply contain as many '%s' as the ancestors.
-#
+
 def menu_get_ancestors(parts):
+  """
+  @ End of "Menu tree parameters".
+  Returns the ancestors (and relevant placeholders) for any given path.
+
+  For example, the ancestors of node/12345/edit are:
+	- node/12345/edit
+  - node/12345/%
+  - node/%/edit
+  - node/%/%
+  - node/12345
+  - node/%
+  - node
+
+  To generate these, we will use binary numbers. Each bit represents a
+  part of the path. If the bit is 1, then it represents the original
+  value while 0 means wildcard. If the path is node/12/edit/foo
+  then the 1011 bitstring represents node/%/edit/foo where % means that
+  any argument matches that part.  We limit ourselves to using binary
+  numbers that correspond the patterns of wildcards of router items that
+  actually exists.  This list of 'masks' is built in menu_rebuild().
+
+  @param parts
+    An array of path parts, for the above example
+    array('node', '12345', 'edit').
+  @return
+    An array which contains the ancestors and placeholders. Placeholder
+    simply contain as many '%s' as the ancestors.
+  """
   number_parts = p.count(parts)
   placeholders = []
   ancestors = []
@@ -293,27 +293,27 @@ def menu_get_ancestors(parts):
 
 
 
-#
-# The menu system uses serialized arrays stored in the database for
-# arguments. However, often these need to change according to the
-# current path. This function unserializes such an array and does the
-# necessary change.
-#
-# Integer values are mapped according to the map parameter. For
-# example, if p.unserialize(data) is array('view', 1) and map is
-# array('node', '12345') then 'view' will not be changed because
-# it is not an integer, but 1 will as it is an integer. As map[1]
-# is '12345', 1 will be replaced with '12345'. So the result will
-# be array('node_load', '12345').
-#
-# @param @data
-#   A serialized array.
-# @param @map
-#   An array of potential replacements.
-# @return
-#   The data array unserialized and mapped.
-#
 def menu_unserialize(data, map):
+  """
+  The menu system uses serialized arrays stored in the database for
+  arguments. However, often these need to change according to the
+  current path. This function unserializes such an array and does the
+  necessary change.
+
+  Integer values are mapped according to the map parameter. For
+  example, if p.unserialize(data) is array('view', 1) and map is
+  array('node', '12345') then 'view' will not be changed because
+  it is not an integer, but 1 will as it is an integer. As map[1]
+  is '12345', 1 will be replaced with '12345'. So the result will
+  be array('node_load', '12345').
+
+  @param @data
+    A serialized array.
+  @param @map
+    An array of potential replacements.
+  @return
+    The data array unserialized and mapped.
+  """
   data = p.unserialize(data)
   if (data):
     for k,v in data.items():
@@ -325,38 +325,37 @@ def menu_unserialize(data, map):
 
 
 
-#
-# Replaces the statically cached item for a given path.
-#
-# @param path
-#   The path.
-# @param router_item
-#   The router item. Usually you take a router entry from menu_get_item and
-#   set it back either modified or to a different path. This lets you modify the
-#   navigation block, the page title, the breadcrumb and the page help in one
-#   call.
-#
 def menu_set_item(path, router_item):
+  """
+  Replaces the statically cached item for a given path.
+  @param path
+    The path.
+  @param router_item
+    The router item. Usually you take a router entry from menu_get_item and
+    set it back either modified or to a different path. This lets you modify 
+    the navigation block, the page title, the breadcrumb and the page help in 
+    one call.
+  """
   menu_get_item(path, router_item)
 
 
 
-#
-# Get a router item.
-#
-# @param path
-#   The path, for example node/5. The function will find the corresponding
-#   node/% item and return that.
-# @param router_item
-#   Internal use only.
-# @return
-#   The router item, an associate array corresponding to one row in the
-#   menu_router table. The value of key map holds the loaded objects. The
-#   value of key access is True if the current user can access this page.
-#   The values for key title, page_arguments, access_arguments will be
-#   filled in based on the database values and the objects loaded.
-#
 def menu_get_item(path = None, router_item = None):
+  """
+  Get a router item.
+
+  @param path
+    The path, for example node/5. The function will find the corresponding
+    node/% item and return that.
+  @param router_item
+    Internal use only.
+  @return
+    The router item, an associate array corresponding to one row in the
+    menu_router table. The value of key map holds the loaded objects. The
+    value of key access is True if the current user can access this page.
+    The values for key title, page_arguments, access_arguments will be
+    filled in based on the database values and the objects loaded.
+  """
   p.static(menu_get_item, 'router_items')
   if (not p.isset(path)):
     path = p.GET['q']
@@ -379,10 +378,11 @@ def menu_get_item(path = None, router_item = None):
   return menu_get_item.router_items[path]
 
 
-#
-# Execute the page callback associated with the current path
-#
+
 def menu_execute_active_handler(path = None):
+  """
+  Execute the page callback associated with the current path
+  """
   if (_menu_site_is_offline()):
     return MENU_SITE_OFFLINE
   if (variable_get('menu_rebuild_needed', False)):
@@ -399,21 +399,21 @@ def menu_execute_active_handler(path = None):
 
 
 
-#
-# Loads objects into the map as defined in the item['load_functions'].
-#
-# @param item
-#   A menu router or menu link item
-# @param map
-#   An array of path arguments (ex: array('node', '5'))
-# @return
-#   Returns True for success, False if an object cannot be loaded.
-#   Names of object loading functions are placed in item['load_functions'].
-#   Loaded objects are placed in map[]; keys are the same as keys in the
-#   item['load_functions'] array.
-#   item['access'] is set to False if an object cannot be loaded.
-#
 def _menu_load_objects(item, map_):
+  """
+  Loads objects into the map as defined in the item['load_functions'].
+
+  @param item
+    A menu router or menu link item
+  @param map
+    An array of path arguments (ex: array('node', '5'))
+  @return
+    Returns True for success, False if an object cannot be loaded.
+    Names of object loading functions are placed in item['load_functions'].
+    Loaded objects are placed in map[]; keys are the same as keys in the
+    item['load_functions'] array.
+    item['access'] is set to False if an object cannot be loaded.
+  """
   p.Reference.check(item)
   p.Reference.check(map_)
   load_functions = item['load_functions']
@@ -461,17 +461,17 @@ def _menu_load_objects(item, map_):
 
 
 
-#
-# Check access to a menu item using the access callback
-#
-# @param item
-#   A menu router or menu link item
-# @param map
-#   An array of path arguments (ex: array('node', '5'))
-# @return
-#   item['access'] becomes True if the item is accessible, False otherwise.
-#
 def _menu_check_access(item, map_):
+  """
+  Check access to a menu item using the access callback
+
+  @param item
+    A menu router or menu link item
+  @param map
+    An array of path arguments (ex: array('node', '5'))
+  @return
+    item['access'] becomes True if the item is accessible, False otherwise.
+  """
   p.Reference.check(item)
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
@@ -490,32 +490,32 @@ def _menu_check_access(item, map_):
 
 
 
-#
-# Localize the router item title using t() or another callback.
-#
-# Translate the title and description to allow storage of English title
-# strings in the database, yet display of them in the language required
-# by the current user.
-#
-# @param item
-#   A menu router item or a menu link item.
-# @param map
-#   The path as an array with objects already replaced. E.g., for path
-#   node/123 map would be array('node', node) where node is the node
-#   object for node 123.
-# @param link_translate
-#   True if we are translating a menu link item; False if we are
-#   translating a menu router item.
-# @return
-#   No return value.
-#   item['title'] is localized according to item['title_callback'].
-#   If an item's callback is check_plain(), item['options']['html'] becomes
-#   True.
-#   item['description'] is translated using t().
-#   When doing link translation and the item['options']['attributes']['title']
-#   (link title attribute) matches the description, it is translated as well.
-#
 def _menu_item_localize(item, map_, link_translate = False):
+  """
+  Localize the router item title using t() or another callback.
+
+  Translate the title and description to allow storage of English title
+  strings in the database, yet display of them in the language required
+  by the current user.
+
+  @param item
+    A menu router item or a menu link item.
+  @param map
+    The path as an array with objects already replaced. E.g., for path
+    node/123 map would be array('node', node) where node is the node
+    object for node 123.
+  @param link_translate
+    True if we are translating a menu link item; False if we are
+    translating a menu router item.
+  @return
+    No return value.
+    item['title'] is localized according to item['title_callback'].
+    If an item's callback is check_plain(), item['options']['html'] becomes
+    True.
+    item['description'] is translated using t().
+    When doing link translation and the item['options']['attributes']['title']
+    (link title attribute) matches the description, it is translated as well.
+  """
   p.Reference.check(item)
   callback = item.val['title_callback']
   item.val['localized_options'] = item.val['options']
@@ -549,37 +549,36 @@ def _menu_item_localize(item, map_, link_translate = False):
 
 
 
-
-#
-# Handles dynamic path translation and menu access control.
-#
-# When a user arrives on a page such as node/5, this function determines
-# what "5" corresponds to, by inspecting the page's menu path definition,
-# node/%node. This will call node_load(5) to load the corresponding node
-# object.
-#
-# It also works in reverse, to allow the display of tabs and menu items which
-# contain these dynamic arguments, translating node/%node to node/5.
-#
-# Translation of menu item titles and descriptions are done here to
-# allow for storage of English strings in the database, and translation
-# to the language required to generate the current page
-#
-# @param router_item
-#   A menu router item
-# @param map
-#   An array of path arguments (ex: array('node', '5'))
-# @param to_arg
-#   Execute item['to_arg_functions'] or not. Use only if you want to render a
-#   path from the menu table, for example tabs.
-# @return
-#   Returns the map with objects loaded as defined in the
-#   item['load_functions. item['access'] becomes True if the item is
-#   accessible, False otherwise. item['href'] is set according to the map.
-#   If an error occurs during calling the load_functions (like trying to load
-#   a non existing node) then this function return False.
-#
 def _menu_translate(router_item, map_, to_arg = False):
+  """
+  Handles dynamic path translation and menu access control.
+
+  When a user arrives on a page such as node/5, this function determines
+  what "5" corresponds to, by inspecting the page's menu path definition,
+  node/%node. This will call node_load(5) to load the corresponding node
+  object.
+
+  It also works in reverse, to allow the display of tabs and menu items which
+  contain these dynamic arguments, translating node/%node to node/5.
+
+  Translation of menu item titles and descriptions are done here to
+  allow for storage of English strings in the database, and translation
+  to the language required to generate the current page
+
+  @param router_item
+    A menu router item
+  @param map
+    An array of path arguments (ex: array('node', '5'))
+  @param to_arg
+    Execute item['to_arg_functions'] or not. Use only if you want to render a
+    path from the menu table, for example tabs.
+  @return
+    Returns the map with objects loaded as defined in the
+    item['load_functions. item['access'] becomes True if the item is
+    accessible, False otherwise. item['href'] is set according to the map.
+    If an error occurs during calling the load_functions (like trying to load
+    a non existing node) then this function return False.
+  """
   p.Reference.check(router_item)
   path_map = map_
   if (not _menu_load_objects(router_item.val, map_)):
@@ -603,17 +602,17 @@ def _menu_translate(router_item, map_, to_arg = False):
 
 
 
-#
-# This function translates the path elements in the map using any to_arg
-# helper function. These functions take an argument and return an object.
-# See http://drupal.org/node/109153 for more information.
-#
-# @param map
-#   An array of path arguments (ex: array('node', '5'))
-# @param to_arg_functions
-#   An array of helper function (ex: array(2 : 'menu_tail_to_arg'))
-#
 def _menu_link_map_translate(map_, to_arg_functions):
+  """
+  This function translates the path elements in the map using any to_arg
+  helper function. These functions take an argument and return an object.
+  See http://drupal.org/node/109153 for more information.
+
+  @param map
+    An array of path arguments (ex: array('node', '5'))
+  @param to_arg_functions
+    An array of helper function (ex: array(2 : 'menu_tail_to_arg'))
+  """
   p.Reference.check(map_)
   if (to_arg_functions):
     to_arg_functions = p.unserialize(to_arg_functions)
@@ -631,22 +630,23 @@ def menu_tail_to_arg(arg, map_, index):
   return p.implode('/', p.array_slice(map_, index))
 
 
-#
-# This function is similar to menu_translate_() but does link-specific
-# preparation such as always calling to_arg functions
-#
-# @param item
-#   A menu link
-# @return
-#   Returns the map of path arguments with objects loaded as defined in the
-#   item['load_functions'].
-#   item['access'] becomes True if the item is accessible, False otherwise.
-#   item['href'] is generated from link_path, possibly by to_arg functions.
-#   item['title'] is generated from link_title, and may be localized.
-#   item['options'] is unserialized; it is also changed within the call here
-#   to item['localized_options'] by _menu_item_localize().
-#
+
 def _menu_link_translate(item):
+  """
+  This function is similar to menu_translate_() but does link-specific
+  preparation such as always calling to_arg functions
+
+  @param item
+    A menu link
+  @return
+    Returns the map of path arguments with objects loaded as defined in the
+    item['load_functions'].
+    item['access'] becomes True if the item is accessible, False otherwise.
+    item['href'] is generated from link_path, possibly by to_arg functions.
+    item['title'] is generated from link_title, and may be localized.
+    item['options'] is unserialized; it is also changed within the call here
+    to item['localized_options'] by _menu_item_localize().
+  """
   p.Reference.check(item)
   item.val['options'] = p.unserialize(item.val['options'])
   if (item.val['external']):
@@ -683,46 +683,46 @@ def _menu_link_translate(item):
 
 
 
-#
-# Get a loaded object from a router item.
-#
-# menu_get_object() will provide you the current node on paths like node/5,
-# node/5/revisions/48 etc. menu_get_object('user') will give you the user
-# account on user/5 etc. Note - this function should never be called within a
-# _to_arg function (like user_current_to_arg()) since this may result in an
-# infinite recursion.
-#
-# @param type
-#   Type of the object. These appear in hook_menu definitons as %type. Core
-#   provides aggregator_feed, aggregator_category, contact, filter_format,
-#   forum_term, menu, menu_link, node, taxonomy_vocabulary, user. See the
-#   relevant {type}_load function for more on each. Defaults to node.
-# @param position
-#   The expected position for type object. For node/%node this is 1, for
-#   comment/reply/%node this is 2. Defaults to 1.
-# @param path
-#   See menu_get_item() for more on this. Defaults to the current path.
-#
 def menu_get_object(type_ = 'node', position = 1, path = None):
+  """
+  Get a loaded object from a router item.
+
+  menu_get_object() will provide you the current node on paths like node/5,
+  node/5/revisions/48 etc. menu_get_object('user') will give you the user
+  account on user/5 etc. Note - this function should never be called within a
+  _to_arg function (like user_current_to_arg()) since this may result in an
+  infinite recursion.
+
+  @param type
+    Type of the object. These appear in hook_menu definitons as %type. Core
+    provides aggregator_feed, aggregator_category, contact, filter_format,
+    forum_term, menu, menu_link, node, taxonomy_vocabulary, user. See the
+    relevant {type}_load function for more on each. Defaults to node.
+  @param position
+    The expected position for type object. For node/%node this is 1, for
+    comment/reply/%node this is 2. Defaults to 1.
+  @param path
+    See menu_get_item() for more on this. Defaults to the current path.
+  """
   router_item = menu_get_item(path)
   if (p.isset(router_item['load_functions'], position) and not p.empty(router_item['map'][position]) and router_item['load_functions'][position] == type_ +  '_load'):
     return router_item['map'][position]
 
 
 
-#
-# Render a menu tree based on the current path.
-#
-# The tree is expanded based on the current path and dynamic paths are also
-# changed according to the defined to_arg functions (for example the 'My account'
-# link is changed from user/% to a link with the current user's uid).
-#
-# @param menu_name
-#   The name of the menu.
-# @return
-#   The rendered HTML of that menu on the current page.
-#
 def menu_tree(menu_name = 'navigation'):
+  """
+  Render a menu tree based on the current path.
+
+  The tree is expanded based on the current path and dynamic paths are also
+  changed according to the defined to_arg functions (for example the 'My account'
+  link is changed from user/% to a link with the current user's uid).
+
+  @param menu_name
+    The name of the menu.
+  @return
+    The rendered HTML of that menu on the current page.
+  """
   p.static(menu_tree, 'menu_output', {})
   if (not p.isset(menu_tree.menu_output, menu_name)):
     tree = menu_tree_page_data(menu_name)
@@ -731,15 +731,15 @@ def menu_tree(menu_name = 'navigation'):
 
 
 
-#
-# Returns a rendered menu tree.
-#
-# @param tree
-#   A data structure representing the tree as returned from menu_tree_data.
-# @return
-#   The rendered HTML of that data structure.
-#
 def menu_tree_output(tree):
+  """
+  Returns a rendered menu tree.
+
+  @param tree
+    A data structure representing the tree as returned from menu_tree_data.
+  @return
+    The rendered HTML of that data structure.
+  """
   output = ''
   items = {}
   # Pull out just the menu items we are going to render so that we
@@ -763,22 +763,22 @@ def menu_tree_output(tree):
 
 
 
-#
-# Get the data structure representing a named menu tree.
-#
-# Since this can be the full tree including hidden items, the data returned
-# may be used for generating an an admin interface or a select.
-#
-# @param menu_name
-#   The named menu links to return
-# @param item
-#   A fully loaded menu link, or None.  If a link is supplied, only the
-#   path to root will be included in the returned tree- as if this link
-#   represented the current page in a visible menu.
-# @return
-#   An tree of menu links in an array, in the order they should be rendered.
-#
 def menu_tree_all_data(menu_name = 'navigation', item = None):
+  """
+  Get the data structure representing a named menu tree.
+
+  Since this can be the full tree including hidden items, the data returned
+  may be used for generating an an admin interface or a select.
+
+  @param menu_name
+    The named menu links to return
+  @param item
+    A fully loaded menu link, or None.  If a link is supplied, only the
+    path to root will be included in the returned tree- as if this link
+    represented the current page in a visible menu.
+  @return
+    An tree of menu links in an array, in the order they should be rendered.
+  """
   p.static(menu_tree_all_data, 'tree', {})
   data = None
   # Use mlid as a flag for whether the data being loaded is for the whole tree.
@@ -840,22 +840,22 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
 
 
 
-#
-# Get the data structure representing a named menu tree, based on the current page.
-#
-# The tree order is maintained by storing each parent in an individual
-# field, see http://drupal.org/node/141866 for more.
-#
-# @param menu_name
-#   The named menu links to return
-# @return
-#   An array of menu links, in the order they should be rendered. The array
-#   is a list of associative arrays -- these have two keys, link and below.
-#   link is a menu item, ready for theming as a link. Below represents the
-#   submenu below the link if there is one, and it is a subtree that has the
-#   same structure described for the top-level array.
-#
 def menu_tree_page_data(menu_name = 'navigation'):
+  """
+  Get the data structure representing a named menu tree, based on the current page.
+
+  The tree order is maintained by storing each parent in an individual
+  field, see http://drupal.org/node/141866 for more.
+
+  @param menu_name
+    The named menu links to return
+  @return
+    An array of menu links, in the order they should be rendered. The array
+    is a list of associative arrays -- these have two keys, link and below.
+    link is a menu item, ready for theming as a link. Below represents the
+    submenu below the link if there is one, and it is a subtree that has the
+    same structure described for the top-level array.
+  """
   p.static(menu_tree_page_data, 'tree', {})
   # Load the menu item corresponding to the current page.
   data = None
@@ -949,18 +949,18 @@ def menu_tree_page_data(menu_name = 'navigation'):
 
 
 
-#
-# Helper function - compute the real cache ID for menu tree data.
-#
 def _menu_tree_cid(menu_name, data):
+  """
+  Helper function - compute the real cache ID for menu tree data.
+  """
   return 'links:' +  menu_name  + ':tree-data:' + p.md5(p.serialize(data))
 
 
 
-#
-# Recursive helper function - collect node links.
-#
 def menu_tree_collect_node_links(tree, node_links):
+  """
+  Recursive helper function - collect node links.
+  """
   p.Reference.check(tree)
   p.Reference.check(node_links)
   for key,v in tree.val.items():
@@ -974,10 +974,10 @@ def menu_tree_collect_node_links(tree, node_links):
 
 
 
-#
-# Check access and perform other dynamic operations for each link in the tree.
-#
 def menu_tree_check_access(tree, node_links = {}):
+  """
+  Check access and perform other dynamic operations for each link in the tree.
+  """
   p.Reference.check(tree)
   if (not p.empty(node_links)):
     # Use db_rewrite_sql to evaluate view access without loading each full node.
@@ -996,10 +996,10 @@ def menu_tree_check_access(tree, node_links = {}):
 
 
 
-#
-# Recursive helper function for menu_tree_check_access()
-#
 def _menu_tree_check_access(tree):
+  """
+  Recursive helper function for menu_tree_check_access()
+  """
   p.Reference.check(tree)
   new_tree = {}
   for key,v in tree.val.items():
@@ -1018,33 +1018,33 @@ def _menu_tree_check_access(tree):
 
 
 
-#
-# Build the data representing a menu tree.
-#
-# @param result
-#   The database result.
-# @param parents
-#   An array of the plid values that represent the path from the current page
-#   to the root of the menu tree.
-# @param depth
-#   The depth of the current menu tree.
-# @return
-#   See menu_tree_page_data for a description of the data structure.
-#
 def menu_tree_data(result = None, parents = {}, depth = 1):
+  """
+  Build the data representing a menu tree.
+
+  @param result
+    The database result.
+  @param parents
+    An array of the plid values that represent the path from the current page
+    to the root of the menu tree.
+  @param depth
+    The depth of the current menu tree.
+  @return
+    See menu_tree_page_data for a description of the data structure.
+  """
   tree = _menu_tree_data(result, parents, depth)[1]
   return tree
 
 
 
-#
-# Recursive helper function to build the data representing a menu tree.
-#
-# The function is a bit complex because the rendering of an item depends on
-# the next menu item. So we are always rendering the element previously
-# processed not the current one.
-#
 def _menu_tree_data(result, parents, depth, previous_element = ''):
+  """
+  Recursive helper function to build the data representing a menu tree.
+
+  The function is a bit complex because the rendering of an item depends on
+  the next menu item. So we are always rendering the element previously
+  processed not the current one.
+  """
   remnant = None
   tree = {}
   while True:
@@ -1094,34 +1094,34 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
 
 
 
-#
-# Generate the HTML output for a single menu link.
-#
-# @ingroup themeable
-#
 def theme_menu_item_link(link):
+  """
+  Generate the HTML output for a single menu link.
+
+  @ingroup themeable
+  """
   if (p.empty(link['localized_options'])):
     link['localized_options'] = {}
   return l(link['title'], link['href'], link['localized_options'])
 
 
 
-#
-# Generate the HTML output for a menu tree
-#
-# @ingroup themeable
-#
 def theme_menu_tree(tree):
+  """
+  Generate the HTML output for a menu tree
+
+  @ingroup themeable
+  """
   return '<ul class="menu">' +  tree  + '</ul>'
 
 
 
-#
-# Generate the HTML output for a menu item and submenu.
-#
-# @ingroup themeable
-#
 def theme_menu_item(link, has_children, menu = '', in_active_trail = False, extra_class = None):
+  """
+  Generate the HTML output for a menu item and submenu.
+
+  @ingroup themeable
+  """
   class_ = ('expanded' if not p.empty(menu) else ('collapsed' if has_children else 'leaf'))
   if (not p.empty(extra_class)):
     class_ += ' ' +  extra_class
@@ -1131,29 +1131,30 @@ def theme_menu_item(link, has_children, menu = '', in_active_trail = False, extr
 
 
 
-#
-# Generate the HTML output for a single local task link.
-#
-# @ingroup themeable
-#
+
 def theme_menu_local_task(link, active = False):
+  """
+  Generate the HTML output for a single local task link.
+
+  @ingroup themeable
+  """
   return '<li ' +  ('class="active" ' if active else '')  + '>' + link + "</li>\n"
 
 
 
-#
-# Generates elements for the arg array in the help hook.
-#
 def drupal_help_arg(arg = []):
+  """
+  Generates elements for the arg array in the help hook.
+  """
   # Note - the number of empty elements should be > MENU_MAX_PARTS.
   return arg + ['', '', '', '', '', '', '', '', '', '', '', '']
 
 
 
-#
-# Returns the help associated with the active menu item.
-#
 def menu_get_active_help():
+  """
+  Returns the help associated with the active menu item.
+  """
   output = ''
   router_path = menu_tab_root_path()
   arg = drupal_help_arg(arg(None))
@@ -1173,10 +1174,11 @@ def menu_get_active_help():
 
 
 
-#
-# Build a list of named menus.
-#
+
 def menu_get_names(reset = False):
+  """
+  Build a list of named menus.
+  """
   p.static(menu_get_names, 'names', [])
   if (reset or p.empty(menu_get_names.names)):
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
@@ -1189,26 +1191,26 @@ def menu_get_names(reset = False):
 
 
 
-#
-# Return an array containing the names of system-defined (default) menus.
-#
 def menu_list_system_menus():
+  """
+  Return an array containing the names of system-defined (default) menus.
+  """
   return ['navigation', 'primary-links', 'secondary-links']
 
 
 
-#
-# Return an array of links to be rendered as the Primary links.
-#
 def menu_primary_links():
+  """
+  Return an array of links to be rendered as the Primary links.
+  """
   return menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'))
 
 
 
-#
-# Return an array of links to be rendered as the Secondary links.
-#
 def menu_secondary_links():
+  """
+  Return an array of links to be rendered as the Secondary links.
+  """
   # If the secondary menu source is set as the primary menu, we display the
   # second level of the primary menu.
   if (variable_get('menu_secondary_links_source', 'secondary-links') == variable_get('menu_primary_links_source', 'primary-links')):
@@ -1218,17 +1220,17 @@ def menu_secondary_links():
 
 
 
-#
-# Return an array of links for a navigation menu.
-#
-# @param menu_name
-#   The name of the menu.
-# @param level
-#   Optional, the depth of the menu to be returned.
-# @return
-#   An array of links of the specified menu and level.
-#
 def menu_navigation_links(menu_name, level = 0):
+  """
+  Return an array of links for a navigation menu.
+
+  @param menu_name
+    The name of the menu.
+  @param level
+    Optional, the depth of the menu to be returned.
+  @return
+    An array of links of the specified menu and level.
+  """
   # Don't even bother querying the menu table if no menu is specified.
   if (p.empty(menu_name)):
     return []
@@ -1261,19 +1263,19 @@ def menu_navigation_links(menu_name, level = 0):
 
 
 
-#
-# Collects the local tasks (tabs) for a given level.
-#
-# @param level
-#   The level of tasks you ask for. Primary tasks are 0, secondary are 1.
-# @param return_root
-#   Whether to return the root path for the current page.
-# @return
-#   Themed output corresponding to the tabs of the requested level, or
-#   router path if return_root == True. This router path corresponds to
-#   a parent tab, if the current page is a default local task.
-#
 def menu_local_tasks(level = 0, return_root = False):
+  """
+  Collects the local tasks (tabs) for a given level.
+
+  @param level
+    The level of tasks you ask for. Primary tasks are 0, secondary are 1.
+  @param return_root
+    Whether to return the root path for the current page.
+  @return
+    Themed output corresponding to the tabs of the requested level, or
+    router path if return_root == True. This router path corresponds to
+    a parent tab, if the current page is a default local task.
+  """
   p.static(menu_local_tasks, 'tabs', [])
   p.static(menu_local_tasks, 'root_path')
   if (p.empty(menu_local_tasks.tabs)):
@@ -1377,36 +1379,36 @@ def menu_local_tasks(level = 0, return_root = False):
 
 
 
-#
-# Returns the rendered local tasks at the top level.
-#
 def menu_primary_local_tasks():
+  """
+  Returns the rendered local tasks at the top level.
+  """
   return menu_local_tasks(0)
 
 
 
-#
-# Returns the rendered local tasks at the second level.
-#
 def menu_secondary_local_tasks():
+  """
+  Returns the rendered local tasks at the second level.
+  """
   return menu_local_tasks(1)
 
 
 
-#
-# Returns the router path, or the path of the parent tab of a default local task.
-#
 def menu_tab_root_path():
+  """
+  Returns the router path, or the path of the parent tab of a default local task.
+  """
   return menu_local_tasks(0, True)
 
 
 
-#
-# Returns the rendered local tasks. The default implementation renders them as tabs.
-#
-# @ingroup themeable
-#
 def theme_menu_local_tasks():
+  """
+  Returns the rendered local tasks. The default implementation renders them as tabs.
+
+  @ingroup themeable
+  """
   output = ''
   primary = menu_primary_local_tasks()
   if (primary):
@@ -1418,10 +1420,10 @@ def theme_menu_local_tasks():
 
 
 
-#
-# Set (or get) the active menu for the current page - determines the active trail.
-#
 def menu_set_active_menu_name(menu_name = None):
+  """
+  Set (or get) the active menu for the current page - determines the active trail.
+  """
   p.static(menu_set_active_menu_name, 'active')
   if (menu_name != None):
     menu_set_active_menu_name.active = menu_name
@@ -1431,33 +1433,34 @@ def menu_set_active_menu_name(menu_name = None):
 
 
 
-#
-# Get the active menu for the current page - determines the active trail.
-#
+
 def menu_get_active_menu_name():
+  """
+  Get the active menu for the current page - determines the active trail.
+  """
   return menu_set_active_menu_name()
 
 
 
-#
-# Set the active path, which determines which page is loaded.
-#
-# @param path
-#   A Drupal path - not a path alias.
-#
-# Note that this may not have the desired effect unless invoked very early
-# in the page load, such as during hook_boot, or unless you call
-# menu_execute_active_handler() to generate your page output.
-#
 def menu_set_active_item(path):
+  """
+  Set the active path, which determines which page is loaded.
+
+  @param path
+    A Drupal path - not a path alias.
+    
+  Note that this may not have the desired effect unless invoked very early
+  in the page load, such as during hook_boot, or unless you call
+  menu_execute_active_handler() to generate your page output.
+  """
   p.GET['q'] = path
 
 
 
-#
-# Set (or get) the active trail for the current page - the path to root in the menu tree.
-#
 def menu_set_active_trail(new_trail = None):
+  """
+  Set (or get) the active trail for the current page - the path to root in the menu tree.
+  """
   p.static(menu_set_active_trail, 'trail')
   if (new_trail != None):
     static_menusetactivetrail_trail = new_trail
@@ -1504,18 +1507,18 @@ def menu_set_active_trail(new_trail = None):
 
 
 
-#
-# Get the active trail for the current page - the path to root in the menu tree.
-#
 def menu_get_active_trail():
+  """
+  Get the active trail for the current page - the path to root in the menu tree.
+  """
   return menu_set_active_trail()
 
 
 
-#
-# Get the breadcrumb for the current page, as determined by the active trail.
-#
 def menu_get_active_breadcrumb():
+  """
+  Get the breadcrumb for the current page, as determined by the active trail.
+  """
   breadcrumb = {}
   # No breadcrumb for the front page.
   if (drupal_is_front_page()):
@@ -1533,10 +1536,10 @@ def menu_get_active_breadcrumb():
 
 
 
-#
-# Get the title of the current page, as determined by the active trail.
-#
 def menu_get_active_title():
+  """
+  Get the title of the current page, as determined by the active trail.
+  """
   active_trail = menu_get_active_trail()
   for item in p.array_reverse(active_trail):
     if (not drupy_bool(item['type'] & MENU_IS_LOCAL_TASK)):
@@ -1544,20 +1547,20 @@ def menu_get_active_title():
 
 
 
-#
-# Get a menu link by its mlid, access checked and link translated for rendering.
-#
-# This function should never be called from within node_load() or any other
-# function used as a menu object load function since an infinite recursion may
-# occur.
-#
-# @param mlid
-#   The mlid of the menu item.
-# @return
-#   A menu link, with item['access'] filled and link translated for
-#   rendering.
-#
 def menu_link_load(mlid):
+  """
+  Get a menu link by its mlid, access checked and link translated for rendering.
+
+  This function should never be called from within node_load() or any other
+  function used as a menu object load function since an infinite recursion may
+  occur.
+
+  @param mlid
+    The mlid of the menu item.
+  @return
+    A menu link, with item['access'] filled and link translated for
+    rendering.  
+  """
   item = db_fetch_array(db_query("SELECT m.*, ml.* FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path WHERE ml.mlid = %d", mlid))
   if (p.is_numeric(mlid) and item):
     _menu_link_translate(item)
@@ -1566,10 +1569,10 @@ def menu_link_load(mlid):
 
 
 
-#
-# Clears the cached cached data for a single named menu.
-#
 def menu_cache_clear(menu_name = 'navigation'):
+  """
+  Clears the cached cached data for a single named menu.
+  """
   p.static(menu_cache_clear, 'cache_cleared', {})
   if (not p.isset(menu_cache_clear.cache_cleared, menu_name) or \
       p.empty(menu_cache_clear.cache_cleared[menu_name])):
@@ -1581,26 +1584,26 @@ def menu_cache_clear(menu_name = 'navigation'):
 
 
 
-#
-# Clears all cached menu data.  This should be called any time broad changes
-# might have been made to the router items or menu links.
-#
 def menu_cache_clear_all():
+  """
+  Clears all cached menu data.  This should be called any time broad changes
+  might have been made to the router items or menu links.
+  """
   cache_clear_all('*', 'cache_menu', True)
 
 
 
-#
-# (Re)populate the database tables used by various menu functions.
-#
-# This function will clear and populate the {menu_router} table, add entries
-# to {menu_links} for new router items, then remove stale items from
-# {menu_links}. If called from update.php or install.php, it will also
-# schedule a call to itself on the first real page load from
-# menu_execute_active_handler(), because the maintenance page environment
-# is different and leaves stale data in the menu tables.
-#
 def menu_rebuild():
+  """
+  (Re)populate the database tables used by various menu functions.
+
+  This function will clear and populate the {menu_router} table, add entries
+  to {menu_links} for new router items, then remove stale items from
+  {menu_links}. If called from update.php or install.php, it will also
+  schedule a call to itself on the first real page load from
+  menu_execute_active_handler(), because the maintenance page environment
+  is different and leaves stale data in the menu tables.
+  """
   variable_del('menu_rebuild_needed')
   menu_cache_clear_all()
   menu = menu_router_build(True)
@@ -1612,10 +1615,10 @@ def menu_rebuild():
 
 
 
-#
-# Collect, alter and store the menu definitions.
-#
 def menu_router_build(reset = False):
+  """
+  Collect, alter and store the menu definitions.
+  """
   p.static(menu_router_build, 'menu')
   if (menu_router_build.menu == None or reset):
     cache = cache_get('router:', 'cache_menu')
@@ -1640,10 +1643,10 @@ def menu_router_build(reset = False):
 
 
 
-#
-# Builds a link from a router item.
-#
 def _menu_link_build(item):
+  """
+  Builds a link from a router item.
+  """
   if (item['type'] == MENU_CALLBACK):
     item['hidden'] = -1
   elif (item['type'] == MENU_SUGGESTED_ITEM):
@@ -1662,10 +1665,10 @@ def _menu_link_build(item):
 
 
 
-#
-# Helper function to build menu links for the items in the menu router.
-#
 def _menu_navigation_links_rebuild(menu):
+  """
+  Helper function to build menu links for the items in the menu router.
+  """
   # Add normal and suggested items as links.
   menu_links = {}
   for path,item in menu.items():
@@ -1712,15 +1715,14 @@ def _menu_navigation_links_rebuild(menu):
 
 
 
-#
-# Delete one or several menu links.
-#
-# @param mlid
-#   A valid menu link mlid or None. If None, path is used.
-# @param path
-#   The path to the menu items to be deleted. mlid must be None.
-#
 def menu_link_delete(mlid, path = None):
+  """
+  Delete one or several menu links.
+    @param mlid
+     A valid menu link mlid or None. If None, path is used.
+    @param path
+     The path to the menu items to be deleted. mlid must be None.
+  """
   if (not p.empty(mlid)):
     _menu_delete_item(db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", mlid)))
   else:
@@ -1733,15 +1735,15 @@ def menu_link_delete(mlid, path = None):
 
 
 
-#
-# Helper function for menu_link_delete; deletes a single menu link.
-#
-# @param item
-#   Item to be deleted.
-# @param force
-#   Forces deletion. Internal use only, setting to True is discouraged.
-#
 def _menu_delete_item(item, force = False):
+  """
+  Helper function for menu_link_delete; deletes a single menu link.
+
+  @param item
+    Item to be deleted.
+  @param force
+    Forces deletion. Internal use only, setting to True is discouraged.
+  """
   if (item and (item['module'] != 'system' or item['updated'] or force)):
     # Children get re-attached to the item's parent.
     if (item['has_children']):
@@ -1761,21 +1763,21 @@ def _menu_delete_item(item, force = False):
 
 
 
-#
-# Save a menu link.
-#
-# @param item
-#   An array representing a menu link item. The only mandatory keys are
-#   link_path and link_title. Possible keys are:
-#   - menu_name   default is navigation
-#   - weight      default is 0
-#   - expanded    whether the item is expanded.
-#   - options     An array of options, @see l for more.
-#   - mlid        Set to an existing value, or 0 or None to insert a new link.
-#   - plid        The mlid of the parent.
-#   - router_path The path of the relevant router item.
-#
 def menu_link_save(item):
+  """
+  Save a menu link.
+
+  @param item
+    An array representing a menu link item. The only mandatory keys are
+    link_path and link_title. Possible keys are:
+    - menu_name   default is navigation
+    - weight      default is 0
+    - expanded    whether the item is expanded.
+    - options     An array of options, @see l for more.
+    - mlid        Set to an existing value, or 0 or None to insert a new link.
+    - plid        The mlid of the parent.
+    - router_path The path of the relevant router item.
+  """
   p.Reference.check(item)
   menu = menu_router_build()
   drupal_alter('menu_link', item.val, menu)
@@ -1897,10 +1899,10 @@ def menu_link_save(item):
 
 
 
-#
-# Helper function to clear the page and block caches at most twice per page load.
-#
 def _menu_clear_page_cache():
+  """
+  Helper function to clear the page and block caches at most twice per page load.
+  """
   p.static(_menu_clear_page_cache, 'cache_cleared', 0)
   # Clear the page and block caches, but at most twice, including at
   #  the end of the page load when there are multple links saved or deleted.
@@ -1917,10 +1919,10 @@ def _menu_clear_page_cache():
 
 
 
-#
-# Helper function to update a list of menus with expanded items
-#
 def _menu_set_expanded_menus():
+  """
+  Helper function to update a list of menus with expanded items
+  """
   names = []
   result = db_query("SELECT menu_name FROM {menu_links} WHERE expanded != 0 GROUP BY menu_name")
   while True:
@@ -1932,18 +1934,18 @@ def _menu_set_expanded_menus():
 
 
 
-#
-# Find the router path which will serve this path.
-#
-# @param menu
-#  The full built menu.
-# @param link_path
-#  The path for we are looking up its router path.
-# @return
-#  A path from menu keys or empty if link_path points to a nonexisting
-#  place.
-#
 def _menu_find_router_path(menu, link_path):
+  """
+  Find the router path which will serve this path.
+
+  @param menu
+    The full built menu.
+  @param link_path
+    The path for we are looking up its router path.
+  @return
+    A path from menu keys or empty if link_path points to a nonexisting
+    place.
+  """
   parts = p.explode('/', link_path, MENU_MAX_PARTS)
   router_path = link_path
   if (not p.isset(menu, router_path)):
@@ -1956,22 +1958,22 @@ def _menu_find_router_path(menu, link_path):
 
 
 
-#
-# Insert, update or delete an uncustomized menu link related to a module.
-#
-# @param module
-#   The name of the module.
-# @param op
-#   Operation to perform: insert, update or delete.
-# @param link_path
-#   The path this link points to.
-# @param link_title
-#   Title of the link to insert or new title to update the link to.
-#   Unused for delete.
-# @return
-#   The insert op returns the mlid of the new item. Others op return None.
-#
 def menu_link_maintain(module, op, link_path, link_title):
+  """
+  Insert, update or delete an uncustomized menu link related to a module.
+
+  @param module
+    The name of the module.
+  @param op
+    Operation to perform: insert, update or delete.
+  @param link_path
+    The path this link points to.
+  @param link_title
+    Title of the link to insert or new title to update the link to.
+    Unused for delete.
+  @return
+    The insert op returns the mlid of the new item. Others op return None.
+  """
   if op == 'insert':
     menu_link = {
       'link_title': link_title,
@@ -1987,19 +1989,18 @@ def menu_link_maintain(module, op, link_path, link_title):
 
 
 
-#
-# Find the depth of an item's children relative to its depth.
-#
-# For example, if the item has a depth of 2, and the maximum of any child in
-# the menu link tree is 5, the relative depth is 3.
-#
-# @param item
-#   An array representing a menu link item.
-# @return
-#   The relative depth, or zero.
-#
-#
 def menu_link_children_relative_depth(item):
+  """
+  Find the depth of an item's children relative to its depth.
+
+  For example, if the item has a depth of 2, and the maximum of any child in
+  the menu link tree is 5, the relative depth is 3.
+
+  @param item
+    An array representing a menu link item.
+  @return
+    The relative depth, or zero.
+  """
   i = 1
   match = ''
   args.append( item['menu_name'] )
@@ -2015,13 +2016,13 @@ def menu_link_children_relative_depth(item):
 
 
 
-#
-# Update the children of a menu link that's being moved.
-#
-# The menu name, parents (p1 - p6), and depth are updated for all children of
-# the link, and the has_children status of the previous parent is updated.
-#
 def _menu_link_move_children(item, existing_item):
+  """
+  Update the children of a menu link that's being moved.
+
+  The menu name, parents (p1 - p6), and depth are updated for all children of
+  the link, and the has_children status of the previous parent is updated.
+  """
   args.append( item['menu_name'] )
   set.append( "menu_name = '%s'" )
   i = 1
@@ -2073,10 +2074,11 @@ def _menu_link_move_children(item, existing_item):
   _menu_update_parental_status(existing_item, True)
 
 
-#
-# Check and update the has_children status for the parent of a link.
-#
+
 def _menu_update_parental_status(item, exclude = False):
+  """
+  Check and update the has_children status for the parent of a link.
+  """
   # If plid == 0, there is nothing to update.
   if (item['plid']):
     # We may want to exclude the passed link as a possible child.
@@ -2087,10 +2089,10 @@ def _menu_update_parental_status(item, exclude = False):
 
 
 
-#
-# Helper function that sets the p1..p9 values for a menu link being saved.
-#
 def _menu_link_parents_set(item, parent):
+  """
+  Helper function that sets the p1..p9 values for a menu link being saved.
+  """
   p.Reference.check(item)
   i = 1
   while (i < item.val['depth']):
@@ -2107,10 +2109,11 @@ def _menu_link_parents_set(item, parent):
     item.val[p] = 0
 
 
-#
-# Helper function to build the router table based on the data from hook_menu.
-#
+
 def _menu_router_build(callbacks):
+  """ 
+  Helper function to build the router table based on the data from hook_menu.
+  """
   # First pass: separate callbacks from paths, making paths ready for
   # matching. Calculate fitness, and fill some default values.
   menu = []
@@ -2261,18 +2264,18 @@ def menu_path_is_external(path):
 
 
 
-#
-# Checks whether the site is off-line for maintenance.
-#
-# This function will log the current user out and redirect to front page
-# if the current user has no 'administer site configuration' permission.
-#
-# @return
-#   False if the site is not off-line or its the login page or the user has
-#     'administer site configuration' permission.
-#   True for anonymous users not on the login page if the site is off-line.
-#
 def _menu_site_is_offline():
+  """
+  Checks whether the site is off-line for maintenance.
+
+  This function will log the current user out and redirect to front page
+  if the current user has no 'administer site configuration' permission.
+
+  @return
+    False if the site is not off-line or its the login page or the user has
+    'administer site configuration' permission.
+    True for anonymous users not on the login page if the site is off-line.
+  """
   # Check if site is set to off-line mode.
   if (variable_get('site_offline', 0)):
     # Check if the user has administration privileges.
@@ -2292,21 +2295,22 @@ def _menu_site_is_offline():
   return False
 
 
-#
-# Validates the path of a menu link being created or edited.
-#
-# @return
-#   True if it is a valid path AND the current user has access permission,
-#   False otherwise.
-#
+
 def menu_valid_path(form_item):
+  """
+  Validates the path of a menu link being created or edited.
+
+  @return
+    True if it is a valid path AND the current user has access permission,
+    False otherwise.
+  """
   global menu_admin
   item = {}
   path = form_item['link_path']
   # We indicate that a menu administrator is running the menu access check.
   menu_admin = True
   if (path == '<front>' or menu_path_is_external(path)):
-    item = {'access' : True}
+    item = {'access': True}
   elif (p.preg_match('/\/\%/', path)):
     # Path is dynamic (ie 'user/%'), so check directly against menu_router table.
     item = db_fetch_array(db_query("SELECT * FROM {menu_router} where path = '%s' ", path))
@@ -2320,6 +2324,7 @@ def menu_valid_path(form_item):
     item = menu_get_item(path)
   menu_admin = False
   return item and item['access']
+
 
 
 #
