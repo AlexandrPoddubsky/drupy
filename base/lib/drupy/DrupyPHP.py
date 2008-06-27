@@ -458,7 +458,7 @@ def call_user_func_array(func, args):
    @param Tuple,List args
    @return Unknown
   """
-  return func(*tuple(args))
+  return eval(func)(*tuple(args))
   
 
 
