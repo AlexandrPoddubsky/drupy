@@ -1000,7 +1000,8 @@ def preg_match(pat, subject, match = None):
     g = list(searcher.groups())
     g.insert(0, ''.join(g))
     if match != None:
-      match.val = g
+      for v in g:
+        match.append( v )
     return len(g)
 
 
