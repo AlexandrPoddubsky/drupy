@@ -447,6 +447,15 @@ def error_get_last():
   )
 
 
+def scandir(path_):
+  """
+  List files and directories inside the specified path
+  
+  @param path_ Str
+  @return Tuple
+  """
+  return os.listdir
+
 
 def uasort(item, func):
   """
