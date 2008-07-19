@@ -579,7 +579,7 @@ def page_get_cache():
 
 
 
-def bootstrap_invoke_all(hook):
+def invoke_all(hook):
   """
    Call all init or exit hooks without including all plugins.
   
@@ -684,7 +684,7 @@ def drupal_page_cache_header(cache):
   print cache.data;
 
 
-def bootstrap_hooks():
+def hooks():
   """
    Define the critical hooks that force plugins to always be loaded.
   """
@@ -975,7 +975,7 @@ def _drupal_bootstrap(phase):
       exit();
   elif phase == DRUPAL_BOOTSTRAP_DATABASE:
     # Initialize the default database.
-    lib_database.db_set_active();
+    lib_database.set_active();
     # Register autoload functions so that we can access classes and interfaces.
     # spl_autoload_register('drupal_autoload_class')
     # spl_autoload_register('drupal_autoload_interface')
